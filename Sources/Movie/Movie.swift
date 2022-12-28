@@ -1,6 +1,4 @@
-public struct Movie {
-    public private(set) var text = "Hello, World!"
-
-    public init() {
-    }
+struct Movie {
+    let id: Int
+    let title: String
 }
