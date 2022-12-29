@@ -1,10 +1,14 @@
 import Foundation
 
 public protocol HTTPClient {
-    func get(from url: URL)
+    func get(from url: URL, completion: @escaping (Error) -> Void)
 }
 
 public final class RemoteFeedLoader {
+    
+    public enum Error: Swift.Error {
+        case connectivity
+    }
     
     // MARK: - Private Properties
     
@@ -20,7 +24,9 @@ public final class RemoteFeedLoader {
     
     // MARK: - API
     
-    public func load() {
-        self.client.get(from: self.url)
+    public func load(completion: @escaping (Error) -> Void = { _ in }) {
+        self.client.get(from: self.url) { error in
+            completion(.connectivity)
+        }
     }
 }
