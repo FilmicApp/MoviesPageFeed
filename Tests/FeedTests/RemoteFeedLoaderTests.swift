@@ -30,7 +30,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         XCTAssertEqual(client.requestedURLs, [url, url])
     }
     
-    func test_load_shouldDeliverErrorOnClientError() {
+    func test_load_whenReceivesClientError_shouldDeliverError() {
         let (sut, client) = makeSut()
         
         expect(sut, toCompleteWithResult: .failure(.connectivity), when: {
@@ -39,7 +39,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         })
     }
     
-    func test_load_shouldDeliverErrorOnNon200HTTPResponse() {
+    func test_load_whenReceivesNon200HTTPResponse_shouldDeliverError() {
         let (sut, client) = makeSut()
         
         let statusCodeSamples = [199, 201, 300, 400, 500]
@@ -51,7 +51,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         }
     }
     
-    func test_load_shouldDeliverErrorOn200HTTPResponseWithInvalidJson() {
+    func test_load_whenReceives200HTTPResponseWithInvalidJSON_shouldDeliverError() {
         let (sut, client) = makeSut()
 
         expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
@@ -60,7 +60,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         })
     }
     
-    func test_load_shouldDeliverNoItemsOn200HTTPResponseWithEmptyJsonPage() {
+    func test_load_whenReceivesEmptyMoviesPageJSONWith200HTTPResponse_shouldDeliverEmptyMoviesPage() {
         let (sut, client) = makeSut()
         
         let emptyMoviesPage = MoviesPage(page: 1, results: [], totalResults: 0, totalPages: 1)
@@ -68,6 +68,10 @@ class RemoteFeedLoaderTests: XCTestCase {
             let emptyMoviesPageJson = Data("{\"page\": 1,\"results\":[],\"totalResults\":0,\"totalPages\":1}".utf8)
             client.complete(withStatusCode: 200, data: emptyMoviesPageJson)
         })
+    }
+    
+    func test_load_whenReceivesNonEmptyMoviesPageJSONWith200HTTPResponse_shouldDeliverNonEmptyMoviesPage() {
+        
     }
     
     // MARK: - Helpers
