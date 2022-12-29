@@ -16,7 +16,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let (sut, client) = makeSut(url: url)
         
         sut.load { _ in }
-
+        
         XCTAssertEqual(client.requestedURLs, [url])
     }
     
@@ -26,7 +26,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         
         sut.load { _ in }
         sut.load { _ in }
-
+        
         XCTAssertEqual(client.requestedURLs, [url, url])
     }
     
@@ -41,18 +41,22 @@ class RemoteFeedLoaderTests: XCTestCase {
         
         XCTAssertEqual(capturedErrors, [.connectivity])
     }
-
+    
     func test_load_shouldReturnErrorOnNon200HTTPResponse() {
         let (sut, client) = makeSut()
         
-        var capturedErrors = [RemoteFeedLoader.Error]()
-        sut.load { capturedErrors.append($0) }
+        let statusCodeSamples = [199, 201, 300, 400, 500]
         
-        client.complete(with: 400)
-        
-        XCTAssertEqual(capturedErrors, [.invalidData])
+        statusCodeSamples.enumerated().forEach { index, statusCode in
+            var capturedErrors = [RemoteFeedLoader.Error]()
+            sut.load { capturedErrors.append($0) }
+            
+            client.complete(with: statusCode, at: index)
+            
+            XCTAssertEqual(capturedErrors, [.invalidData])
+        }
     }
-
+    
     // MARK: - Helpers
     
     private func makeSut(url: URL = URL(string: "https://a-url.com")!) -> (sut: RemoteFeedLoader, client: HTTPClientSpy) {
@@ -74,7 +78,7 @@ extension RemoteFeedLoaderTests {
         var requestedURLs: [URL] {
             messages.map { $0.url }
         }
-                
+        
         // MARK: - API
         
         func get(from url: URL, completion: @escaping (Error?, HTTPURLResponse?) -> Void) {
