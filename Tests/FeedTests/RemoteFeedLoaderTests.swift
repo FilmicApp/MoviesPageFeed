@@ -33,7 +33,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func test_load_shouldDeliverErrorOnClientError() {
         let (sut, client) = makeSut()
         
-        expect(sut, toCompleteWithError: .connectivity, when: {
+        expect(sut, toCompleteWithResult: .failure(.connectivity), when: {
             let clientError = NSError(domain: "Test", code: 0)
             client.complete(with: clientError)
         })
@@ -45,7 +45,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let statusCodeSamples = [199, 201, 300, 400, 500]
         
         statusCodeSamples.enumerated().forEach { index, statusCode in
-            expect(sut, toCompleteWithError: .invalidData, when: {
+            expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
                 client.complete(withStatusCode: statusCode, at: index)
             })
         }
@@ -54,7 +54,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func test_load_shouldDeliverErrorOn200HTTPResponseWithInvalidJson() {
         let (sut, client) = makeSut()
 
-        expect(sut, toCompleteWithError: .invalidData, when: {
+        expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
             let invalidJson = Data("invalid data".utf8)
             client.complete(withStatusCode: 200, data: invalidJson)
         })
@@ -63,14 +63,11 @@ class RemoteFeedLoaderTests: XCTestCase {
     func test_load_shouldDeliverNoItemsOn200HTTPResponseWithEmptyJsonPage() {
         let (sut, client) = makeSut()
         
-        var capturedResults = [RemoteFeedLoader.Result]()
-        sut.load { capturedResults.append($0) }
-        
-        let emptyMoviesPageJson = Data("{\"page\": 1,\"results\":[],\"totalResults\":0,\"totalPages\":1}".utf8)
         let emptyMoviesPage = MoviesPage(page: 1, results: [], totalResults: 0, totalPages: 1)
-        client.complete(withStatusCode: 200, data: emptyMoviesPageJson)
-        
-        XCTAssertEqual(capturedResults, [.success(emptyMoviesPage)])
+        expect(sut, toCompleteWithResult: .success(emptyMoviesPage), when: {
+            let emptyMoviesPageJson = Data("{\"page\": 1,\"results\":[],\"totalResults\":0,\"totalPages\":1}".utf8)
+            client.complete(withStatusCode: 200, data: emptyMoviesPageJson)
+        })
     }
     
     // MARK: - Helpers
@@ -81,13 +78,13 @@ class RemoteFeedLoaderTests: XCTestCase {
         return (sut, client)
     }
     
-    private func expect(_ sut: RemoteFeedLoader, toCompleteWithError error: RemoteFeedLoader.Error, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: RemoteFeedLoader, toCompleteWithResult result: RemoteFeedLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         var capturedResults = [RemoteFeedLoader.Result]()
         sut.load { capturedResults.append($0) }
         
         action()
         
-        XCTAssertEqual(capturedResults, [.failure(error)], file: file, line: line)
+        XCTAssertEqual(capturedResults, [result], file: file, line: line)
     }
 }
 
