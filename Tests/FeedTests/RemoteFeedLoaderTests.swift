@@ -46,7 +46,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         
         statusCodeSamples.enumerated().forEach { index, statusCode in
             expect(sut, toCompleteWithError: .invalidData, when: {
-                client.complete(with: statusCode, at: index)
+                client.complete(withStatusCode: statusCode, at: index)
             })
         }
     }
@@ -56,8 +56,21 @@ class RemoteFeedLoaderTests: XCTestCase {
 
         expect(sut, toCompleteWithError: .invalidData, when: {
             let invalidJson = Data("invalid data".utf8)
-            client.complete(with: 200, data: invalidJson)
+            client.complete(withStatusCode: 200, data: invalidJson)
         })
+    }
+    
+    func test_load_shouldDeliverNoItemsOn200HTTPResponseWithEmptyJsonPage() {
+        let (sut, client) = makeSut()
+        
+        var capturedResults = [RemoteFeedLoader.Result]()
+        sut.load { capturedResults.append($0) }
+        
+        let emptyMoviesPageJson = Data("{\"page\": 1,\"results\":[],\"totalResults\":0,\"totalPages\":1}".utf8)
+        let emptyMoviesPage = MoviesPage(page: 1, results: [], totalResults: 0, totalPages: 1)
+        client.complete(withStatusCode: 200, data: emptyMoviesPageJson)
+        
+        XCTAssertEqual(capturedResults, [.success(emptyMoviesPage)])
     }
     
     // MARK: - Helpers
@@ -101,7 +114,7 @@ extension RemoteFeedLoaderTests {
             messages[index].completion(.failure(error))
         }
         
-        func complete(with statusCode: Int, data: Data = Data(), at index: Int = 0) {
+        func complete(withStatusCode statusCode: Int, data: Data = Data(), at index: Int = 0) {
             let response = HTTPURLResponse(
                 url: requestedURLs[index],
                 statusCode: statusCode,
