@@ -1,11 +1,11 @@
-struct MoviesPage {
+public struct MoviesPage: Decodable, Equatable {
     let page: Int
     let results: [Movie]
     let totalResults: Int
     let totalPages: Int
 }
 
-struct Movie: Decodable {
+public struct Movie: Decodable, Equatable {
     let id: Int
     let title: String
 }
