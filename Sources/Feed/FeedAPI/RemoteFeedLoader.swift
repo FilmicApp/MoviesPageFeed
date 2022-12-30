@@ -2,6 +2,8 @@ import Foundation
 
 public final class RemoteFeedLoader {
     
+    // MARK: - Enums
+    
     public enum Error: Swift.Error {
         case connectivity
         case invalidData
@@ -36,6 +38,8 @@ public final class RemoteFeedLoader {
             }
         }
     }
+    
+    // MARK: - Helpers
     
     private func handleSuccess(
         _ data: Data,
