@@ -33,6 +33,8 @@ final class MoviesPageMapper {
         }
     }
     
+    // MARK: - Private Properties
+    
     private static var OK_200: Int { return 200}
     
     // MARK: - API
