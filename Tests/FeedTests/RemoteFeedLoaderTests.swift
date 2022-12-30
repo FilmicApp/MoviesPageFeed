@@ -70,21 +70,21 @@ class RemoteFeedLoaderTests: XCTestCase {
         })
     }
     
-    func test_load_whenReceivesNonEmptyMoviesPageJSONWith200HTTPResponse_shouldDeliverNonEmptyMoviesPage() {
+    func test_load_whenReceivesNonEmptyMoviesPageJSONWith200HTTPResponse_shouldDeliverNonEmptyMoviesPage() throws {
         let (sut, client) = makeSut()
         
-        let movie1 = Movie(id: 1, title: "Title1")
-        let movie2 = Movie(id: 2, title: "Title2")
-        
-        let moviesPage = MoviesPage(
+        let moviesPage = makeMoviesPage(
             page: 1,
-            results: [movie1, movie2],
+            results: [
+                makeMovie(id: 1, title: "Title1"),
+                makeMovie(id: 2, title: "Title2")
+            ],
             totalResults: 2,
             totalPages: 1
         )
         
-        expect(sut, toCompleteWithResult: .success(moviesPage), when: {
-            let jsonData = try! JSONEncoder().encode(moviesPage)
+        expect(sut, toCompleteWithResult: .success(moviesPage.model), when: {
+            let jsonData = try! JSONSerialization.data(withJSONObject: moviesPage.json)
             client.complete(withStatusCode: 200, data: jsonData)
         })
     }
@@ -95,6 +95,40 @@ class RemoteFeedLoaderTests: XCTestCase {
         let client = HTTPClientSpy()
         let sut = RemoteFeedLoader(url: url, client: client)
         return (sut, client)
+    }
+    
+    private func makeMovie(id: Int, title: String) -> (model: Movie, json: [String: Any]) {
+        let model = Movie(id: id, title: title)
+        
+        let json: [String: Any] = [
+            "id": id,
+            "title": title
+        ]
+        
+        return (model, json)
+    }
+    
+    private func makeMoviesPage(
+        page: Int,
+        results: [(model: Movie, json: [String: Any])] = [],
+        totalResults: Int,
+        totalPages: Int)
+    -> (model: MoviesPage, json: [String: Any]) {
+        let model = MoviesPage(
+            page: page,
+            results: results.map { $0.model },
+            totalResults: totalResults,
+            totalPages: totalPages
+        )
+        
+        let json: [String: Any] = [
+            "page": page,
+            "results": results.map { $0.json },
+            "totalResults": totalResults,
+            "totalPages": totalPages
+        ]
+        
+        return (model, json)
     }
     
     private func expect(_ sut: RemoteFeedLoader, toCompleteWithResult result: RemoteFeedLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
@@ -143,20 +177,11 @@ extension RemoteFeedLoaderTests {
     }
 }
 
-extension Movie {
-    func toJson() -> String? {
-        guard let encodedData = try? JSONEncoder().encode(self) else { return nil }
-        return String(data: encodedData, encoding: .utf8)
-    }
-}
-
-extension MoviesPage {
-    func toJsonData() -> Data? {
-        return try? JSONEncoder().encode(self)
-    }
-    
-    func toJsonString() -> String? {
-        guard let encodedData = self.toJsonData() else { return nil}
-        return String(data: encodedData, encoding: .utf8)
+private extension Movie {
+    func toJson() -> [String: Any] {
+        return [
+            "id": self.id,
+            "title": self.title
+        ]
     }
 }
