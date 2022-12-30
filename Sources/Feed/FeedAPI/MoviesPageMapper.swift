@@ -42,7 +42,7 @@ final class MoviesPageMapper {
             response.statusCode == OK_200,
             let moviesPageDTO = try? JSONDecoder().decode(MoviesPageDTO.self, from: data)
         else {
-            return .failure(.invalidData)
+            return .failure(RemoteFeedLoader.Error.invalidData)
         }
         
         return .success(moviesPageDTO.toDomain())

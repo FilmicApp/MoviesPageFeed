@@ -2,18 +2,15 @@ import Foundation
 
 public final class RemoteFeedLoader {
     
+    public typealias Result = LoadMoviesPageResult<Error>
+
     // MARK: - Enums
     
     public enum Error: Swift.Error {
         case connectivity
         case invalidData
     }
-    
-    public enum Result: Equatable {
-        case success(MoviesPage)
-        case failure(Error)
-    }
-    
+        
     // MARK: - Private Properties
     
     private let url: URL
@@ -48,6 +45,6 @@ public final class RemoteFeedLoader {
     }
         
     private static func handleFailure() -> Result {
-        .failure(.connectivity)
+        .failure(Error.connectivity)
     }
 }
