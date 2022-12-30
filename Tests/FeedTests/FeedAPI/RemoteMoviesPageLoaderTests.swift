@@ -103,7 +103,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         XCTAssertTrue(capturedResults.isEmpty)
     }
     
-    // MARK: - Make
+    // MARK: - Factory methods
     
     private func makeSut(
         url: URL = URL(string: "https://a-url.com")!,
