@@ -46,7 +46,8 @@ class RemoteFeedLoaderTests: XCTestCase {
         
         statusCodeSamples.enumerated().forEach { index, statusCode in
             expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
-                client.complete(withStatusCode: statusCode, at: index)
+                let emptyMoviesPage = makeMoviesPageWithData(page: 1, results: [],totalResults: 0, totalPages: 1)
+                client.complete(withStatusCode: statusCode, data: emptyMoviesPage.data, at: index)
             })
         }
     }
@@ -183,7 +184,7 @@ extension RemoteFeedLoaderTests {
             messages[index].completion(.failure(error))
         }
         
-        func complete(withStatusCode statusCode: Int, data: Data = Data(), at index: Int = 0) {
+        func complete(withStatusCode statusCode: Int, data: Data, at index: Int = 0) {
             let response = HTTPURLResponse(
                 url: requestedURLs[index],
                 statusCode: statusCode,
