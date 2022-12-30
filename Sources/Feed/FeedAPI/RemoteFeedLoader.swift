@@ -97,10 +97,12 @@ private class MoviesPageMapper {
         }
     }
     
+    private static var OK_200: Int { return 200}
+    
     // MARK: - API
     
     static func map(_ data: Data, _ response: HTTPURLResponse) throws -> MoviesPage {
-        guard response.statusCode == 200 else {
+        guard response.statusCode == OK_200 else {
             throw RemoteFeedLoader.Error.invalidData
         }
         
