@@ -73,19 +73,18 @@ class RemoteFeedLoaderTests: XCTestCase {
     func test_load_whenReceivesNonEmptyMoviesPageJSONWith200HTTPResponse_shouldDeliverNonEmptyMoviesPage() throws {
         let (sut, client) = makeSut()
         
-        let moviesPage = makeMoviesPage(
+        let moviesPageTestObjects = makeMoviesPageWithData(
             page: 1,
             results: [
-                makeMovie(id: 1, title: "Title1"),
-                makeMovie(id: 2, title: "Title2")
+                makeMovieWithJSON(id: 1, title: "Title1"),
+                makeMovieWithJSON(id: 2, title: "Title2")
             ],
             totalResults: 2,
             totalPages: 1
         )
         
-        expect(sut, toCompleteWithResult: .success(moviesPage.model), when: {
-            let jsonData = try! JSONSerialization.data(withJSONObject: moviesPage.json)
-            client.complete(withStatusCode: 200, data: jsonData)
+        expect(sut, toCompleteWithResult: .success(moviesPageTestObjects.model), when: {
+            client.complete(withStatusCode: 200, data: moviesPageTestObjects.data)
         })
     }
     
@@ -97,7 +96,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         return (sut, client)
     }
     
-    private func makeMovie(id: Int, title: String) -> (model: Movie, json: [String: Any]) {
+    private func makeMovieWithJSON(id: Int, title: String) -> (model: Movie, json: [String: Any]) {
         let model = Movie(id: id, title: title)
         
         let json: [String: Any] = [
@@ -108,12 +107,12 @@ class RemoteFeedLoaderTests: XCTestCase {
         return (model, json)
     }
     
-    private func makeMoviesPage(
+    private func makeMoviesPageWithData(
         page: Int,
         results: [(model: Movie, json: [String: Any])] = [],
         totalResults: Int,
         totalPages: Int)
-    -> (model: MoviesPage, json: [String: Any]) {
+    -> (model: MoviesPage, data: Data) {
         let model = MoviesPage(
             page: page,
             results: results.map { $0.model },
@@ -128,7 +127,9 @@ class RemoteFeedLoaderTests: XCTestCase {
             "totalPages": totalPages
         ]
         
-        return (model, json)
+        let data = try! JSONSerialization.data(withJSONObject: json)
+        
+        return (model, data)
     }
     
     private func expect(_ sut: RemoteFeedLoader, toCompleteWithResult result: RemoteFeedLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
