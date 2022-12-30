@@ -2,7 +2,7 @@ import Foundation
 
 public final class RemoteMoviesPageLoader: MoviesPageLoader {
     
-    public typealias Result = LoadMoviesPageResult<Error>
+    public typealias Result = LoadMoviesPageResult
 
     // MARK: - Enums
     

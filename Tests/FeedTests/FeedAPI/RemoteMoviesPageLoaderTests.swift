@@ -33,7 +33,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func test_load_whenReceivesClientError_shouldDeliverError() {
         let (sut, client) = makeSut()
         
-        expect(sut, toCompleteWith: .failure(.connectivity), when: {
+        expect(sut, toCompleteWith: .failure(RemoteMoviesPageLoader.Error.connectivity), when: {
             let clientError = NSError(domain: "Test", code: 0)
             client.complete(with: clientError)
         })
@@ -45,7 +45,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let statusCodeSamples = [199, 201, 300, 400, 500]
         
         statusCodeSamples.enumerated().forEach { index, statusCode in
-            expect(sut, toCompleteWith: .failure(.invalidData), when: {
+            expect(sut, toCompleteWith: .failure(RemoteMoviesPageLoader.Error.invalidData), when: {
                 let emptyMoviesPage = makeMoviesPageWithData()
                 client.complete(withStatusCode: statusCode, data: emptyMoviesPage.data, at: index)
             })
@@ -55,7 +55,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func test_load_whenReceives200HTTPResponseWithInvalidJSON_shouldDeliverError() {
         let (sut, client) = makeSut()
         
-        expect(sut, toCompleteWith: .failure(.invalidData), when: {
+        expect(sut, toCompleteWith: .failure(RemoteMoviesPageLoader.Error.invalidData), when: {
             let invalidJson = Data("invalid data".utf8)
             client.complete(withStatusCode: 200, data: invalidJson)
         })
@@ -199,7 +199,7 @@ class RemoteFeedLoaderTests: XCTestCase {
             case let (.success(receivedItems), .success(expectedItems)):
                 XCTAssertEqual(receivedItems, expectedItems, file: file, line: line)
                 
-            case let (.failure(receivedError), .failure(expectedError)):
+            case let (.failure(receivedError as RemoteMoviesPageLoader.Error), .failure(expectedError as RemoteMoviesPageLoader.Error)):
                 XCTAssertEqual(receivedError, expectedError, file: file, line: line)
                 
             default:

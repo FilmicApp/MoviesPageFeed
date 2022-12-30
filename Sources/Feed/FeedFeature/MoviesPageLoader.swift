@@ -1,11 +1,9 @@
-public enum LoadMoviesPageResult<Error: Swift.Error> {
+public enum LoadMoviesPageResult {
     case success(MoviesPage)
     case failure(Error)
 }
 
 protocol MoviesPageLoader {
-    associatedtype Error: Swift.Error
-    
-    func load(completion: @escaping (LoadMoviesPageResult<Error>) -> Void)
+    func load(completion: @escaping (LoadMoviesPageResult) -> Void)
 }
 
