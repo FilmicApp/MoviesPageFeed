@@ -65,8 +65,8 @@ class RemoteFeedLoaderTests: XCTestCase {
         
         let emptyMoviesPage = MoviesPage(page: 1, results: [], totalResults: 0, totalPages: 1)
         expect(sut, toCompleteWithResult: .success(emptyMoviesPage), when: {
-            let emptyMoviesPageJson = Data("{\"page\": 1,\"results\":[],\"totalResults\":0,\"totalPages\":1}".utf8)
-            client.complete(withStatusCode: 200, data: emptyMoviesPageJson)
+            let emptyMoviesPage = makeMoviesPageWithData(page: 1, totalResults: 0, totalPages: 1)
+            client.complete(withStatusCode: 200, data: emptyMoviesPage.data)
         })
     }
     
