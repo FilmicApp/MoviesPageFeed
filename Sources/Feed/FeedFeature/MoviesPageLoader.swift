@@ -6,4 +6,3 @@ public enum LoadMoviesPageResult {
 public protocol MoviesPageLoader {
     func load(completion: @escaping (LoadMoviesPageResult) -> Void)
 }
-
