@@ -65,6 +65,40 @@ public final class RemoteFeedLoader {
 }
 
 private class MoviesPageMapper {
+    
+    // MARK: - Private Structs
+    
+    private struct MoviesPageDTO: Decodable {
+        let page: Int
+        let results: [MovieDTO]
+        let totalResults: Int
+        let totalPages: Int
+        
+        func toDomain() -> MoviesPage {
+            MoviesPage(
+                page: self.page,
+                results: self.results.map { $0.toDomain() },
+                totalResults: self.totalResults,
+                totalPages: self.totalPages
+            )
+        }
+    }
+
+    private struct MovieDTO: Decodable {
+        
+        let id: Int
+        let title: String
+        
+        func toDomain() -> Movie {
+            Movie(
+                id: self.id,
+                title: self.title
+            )
+        }
+    }
+    
+    // MARK: - API
+    
     static func map(_ data: Data, _ response: HTTPURLResponse) throws -> MoviesPage {
         guard response.statusCode == 200 else {
             throw RemoteFeedLoader.Error.invalidData
@@ -73,34 +107,5 @@ private class MoviesPageMapper {
         let moviesPageDTO =  try JSONDecoder().decode(MoviesPageDTO.self, from: data)
         
         return moviesPageDTO.toDomain()
-    }
-}
-
-private struct MoviesPageDTO: Decodable {
-    let page: Int
-    let results: [MovieDTO]
-    let totalResults: Int
-    let totalPages: Int
-    
-    func toDomain() -> MoviesPage {
-        MoviesPage(
-            page: self.page,
-            results: self.results.map { $0.toDomain() },
-            totalResults: self.totalResults,
-            totalPages: self.totalPages
-        )
-    }
-}
-
-private struct MovieDTO: Decodable {
-    
-    let id: Int
-    let title: String
-    
-    func toDomain() -> Movie {
-        Movie(
-            id: self.id,
-            title: self.title
-        )
     }
 }
