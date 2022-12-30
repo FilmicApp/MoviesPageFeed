@@ -3,7 +3,7 @@ public enum LoadMoviesPageResult {
     case failure(Error)
 }
 
-protocol MoviesPageLoader {
+public protocol MoviesPageLoader {
     func load(completion: @escaping (LoadMoviesPageResult) -> Void)
 }
 
