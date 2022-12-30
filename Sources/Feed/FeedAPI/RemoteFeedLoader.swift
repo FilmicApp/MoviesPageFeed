@@ -51,7 +51,7 @@ public final class RemoteFeedLoader {
     }
 }
 
-struct MoviesPageDTO: Decodable {
+private struct MoviesPageDTO: Decodable {
     let page: Int
     let results: [MovieDTO]
     let totalResults: Int
@@ -67,7 +67,7 @@ struct MoviesPageDTO: Decodable {
     }
 }
 
-struct MovieDTO: Decodable {
+private struct MovieDTO: Decodable {
     
     let id: Int
     let title: String
