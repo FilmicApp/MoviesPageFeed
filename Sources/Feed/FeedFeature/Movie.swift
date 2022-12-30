@@ -1,4 +1,4 @@
-public struct MoviesPage: Decodable, Equatable {
+public struct MoviesPage: Equatable {
     
     // MARK: - Public Properties
     
@@ -17,7 +17,7 @@ public struct MoviesPage: Decodable, Equatable {
     }
 }
 
-public struct Movie: Decodable, Equatable {
+public struct Movie: Equatable {
     
     // MARK: - Public Properties
     

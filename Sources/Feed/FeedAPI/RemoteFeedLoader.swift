@@ -39,8 +39,8 @@ public final class RemoteFeedLoader {
         client.get(from: url) { result in
             switch result {
             case let .success(data, response):
-                if response.statusCode == 200, let page = try? JSONDecoder().decode(MoviesPage.self, from: data) {
-                    completion(.success(page))
+                if response.statusCode == 200, let moviesPageDTO = try? JSONDecoder().decode(MoviesPageDTO.self, from: data) {
+                    completion(.success(moviesPageDTO.toDomain()))
                 } else {
                     completion(.failure(.invalidData))
                 }
@@ -48,5 +48,34 @@ public final class RemoteFeedLoader {
                 completion(.failure(.connectivity))
             }
         }
+    }
+}
+
+struct MoviesPageDTO: Decodable {
+    let page: Int
+    let results: [MovieDTO]
+    let totalResults: Int
+    let totalPages: Int
+    
+    func toDomain() -> MoviesPage {
+        MoviesPage(
+            page: self.page,
+            results: self.results.map { $0.toDomain() },
+            totalResults: self.totalResults,
+            totalPages: self.totalPages
+        )
+    }
+}
+
+struct MovieDTO: Decodable {
+    
+    let id: Int
+    let title: String
+    
+    func toDomain() -> Movie {
+        Movie(
+            id: self.id,
+            title: self.title
+        )
     }
 }
