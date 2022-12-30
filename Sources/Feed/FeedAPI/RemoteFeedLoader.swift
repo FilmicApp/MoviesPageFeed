@@ -32,16 +32,16 @@ public final class RemoteFeedLoader {
         client.get(from: url) { result in
             switch result {
             case let .success(data, response):
-                self.handleSuccess(data, response, completion)
+                RemoteFeedLoader.handleSuccess(data, response, completion)
             case .failure:
-                self.handleFailure(completion)
+                RemoteFeedLoader.handleFailure(completion)
             }
         }
     }
     
     // MARK: - Helpers
     
-    private func handleSuccess(
+    private static func handleSuccess(
         _ data: Data,
         _ response: HTTPURLResponse,
         _ completion: @escaping (Result) -> Void
@@ -54,7 +54,7 @@ public final class RemoteFeedLoader {
         }
     }
     
-    private func handleFailure(_ completion: @escaping (Result) -> Void) {
+    private static func handleFailure(_ completion: @escaping (Result) -> Void) {
         completion(.failure(.connectivity))
     }
 }
