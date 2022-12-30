@@ -32,29 +32,20 @@ public final class RemoteFeedLoader {
         client.get(from: url) { result in
             switch result {
             case let .success(data, response):
-                RemoteFeedLoader.handleSuccess(data, response, completion)
+                completion(RemoteFeedLoader.handleSuccess(data, response))
             case .failure:
-                RemoteFeedLoader.handleFailure(completion)
+                completion(RemoteFeedLoader.handleFailure())
             }
         }
     }
     
     // MARK: - Helpers
     
-    private static func handleSuccess(
-        _ data: Data,
-        _ response: HTTPURLResponse,
-        _ completion: @escaping (Result) -> Void
-    ) {
-        do {
-            let moviesPage = try MoviesPageMapper.map(data, response)
-            completion(.success(moviesPage))
-        } catch {
-            completion(.failure(.invalidData))
-        }
+    private static func handleSuccess(_ data: Data, _ response: HTTPURLResponse) -> Result {
+        MoviesPageMapper.map(data, from: response)
     }
-    
-    private static func handleFailure(_ completion: @escaping (Result) -> Void) {
-        completion(.failure(.connectivity))
+        
+    private static func handleFailure() -> Result {
+        .failure(.connectivity)
     }
 }
