@@ -39,15 +39,28 @@ public final class RemoteFeedLoader {
         client.get(from: url) { result in
             switch result {
             case let .success(data, response):
-                if response.statusCode == 200, let moviesPageDTO = try? JSONDecoder().decode(MoviesPageDTO.self, from: data) {
-                    completion(.success(moviesPageDTO.toDomain()))
-                } else {
+                do {
+                    let moviesPage = try MoviesPageMapper.map(data, response)
+                    completion(.success(moviesPage))
+                } catch {
                     completion(.failure(.invalidData))
                 }
             case .failure:
                 completion(.failure(.connectivity))
             }
         }
+    }    
+}
+
+private class MoviesPageMapper {
+    static func map(_ data: Data, _ response: HTTPURLResponse) throws -> MoviesPage {
+        guard response.statusCode == 200 else {
+            throw RemoteFeedLoader.Error.invalidData
+        }
+        
+        let moviesPageDTO =  try JSONDecoder().decode(MoviesPageDTO.self, from: data)
+        
+        return moviesPageDTO.toDomain()
     }
 }
 
