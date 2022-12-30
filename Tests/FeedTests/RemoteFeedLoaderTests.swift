@@ -53,7 +53,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     
     func test_load_whenReceives200HTTPResponseWithInvalidJSON_shouldDeliverError() {
         let (sut, client) = makeSut()
-
+        
         expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
             let invalidJson = Data("invalid data".utf8)
             client.complete(withStatusCode: 200, data: invalidJson)
@@ -71,7 +71,22 @@ class RemoteFeedLoaderTests: XCTestCase {
     }
     
     func test_load_whenReceivesNonEmptyMoviesPageJSONWith200HTTPResponse_shouldDeliverNonEmptyMoviesPage() {
+        let (sut, client) = makeSut()
         
+        let movie1 = Movie(id: 1, title: "Title1")
+        let movie2 = Movie(id: 2, title: "Title2")
+        
+        let moviesPage = MoviesPage(
+            page: 1,
+            results: [movie1, movie2],
+            totalResults: 2,
+            totalPages: 1
+        )
+        
+        expect(sut, toCompleteWithResult: .success(moviesPage), when: {
+            let jsonData = try! JSONEncoder().encode(moviesPage)
+            client.complete(withStatusCode: 200, data: jsonData)
+        })
     }
     
     // MARK: - Helpers
@@ -125,5 +140,23 @@ extension RemoteFeedLoaderTests {
             
             messages[index].completion(.success(data, response))
         }
+    }
+}
+
+extension Movie {
+    func toJson() -> String? {
+        guard let encodedData = try? JSONEncoder().encode(self) else { return nil }
+        return String(data: encodedData, encoding: .utf8)
+    }
+}
+
+extension MoviesPage {
+    func toJsonData() -> Data? {
+        return try? JSONEncoder().encode(self)
+    }
+    
+    func toJsonString() -> String? {
+        guard let encodedData = self.toJsonData() else { return nil}
+        return String(data: encodedData, encoding: .utf8)
     }
 }

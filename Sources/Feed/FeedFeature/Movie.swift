@@ -1,8 +1,13 @@
 public struct MoviesPage: Codable, Equatable {
-    let page: Int
-    let results: [Movie]
-    let totalResults: Int
-    let totalPages: Int
+    
+    // MARK: - Public Properties
+    
+    public let page: Int
+    public let results: [Movie]
+    public let totalResults: Int
+    public let totalPages: Int
+    
+    // MARK: - Init
     
     public init(page: Int, results: [Movie], totalResults: Int, totalPages: Int) {
         self.page = page
@@ -13,7 +18,17 @@ public struct MoviesPage: Codable, Equatable {
 }
 
 public struct Movie: Codable, Equatable {
-    let id: Int
-    let title: String
+    
+    // MARK: - Public Properties
+    
+    public let id: Int
+    public let title: String
+    
+    // MARK: - Init
+    
+    public init(id: Int, title: String) {
+        self.id = id
+        self.title = title
+    }
 }
 
