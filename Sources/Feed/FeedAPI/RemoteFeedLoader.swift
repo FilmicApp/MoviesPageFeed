@@ -39,17 +39,29 @@ public final class RemoteFeedLoader {
         client.get(from: url) { result in
             switch result {
             case let .success(data, response):
-                do {
-                    let moviesPage = try MoviesPageMapper.map(data, response)
-                    completion(.success(moviesPage))
-                } catch {
-                    completion(.failure(.invalidData))
-                }
+                self.handleSuccess(data, response, completion)
             case .failure:
-                completion(.failure(.connectivity))
+                self.handleFailure(completion)
             }
         }
-    }    
+    }
+    
+    private func handleSuccess(
+        _ data: Data,
+        _ response: HTTPURLResponse,
+        _ completion: @escaping (Result) -> Void
+    ) {
+        do {
+            let moviesPage = try MoviesPageMapper.map(data, response)
+            completion(.success(moviesPage))
+        } catch {
+            completion(.failure(.invalidData))
+        }
+    }
+    
+    private func handleFailure(_ completion: @escaping (Result) -> Void) {
+        completion(.failure(.connectivity))
+    }
 }
 
 private class MoviesPageMapper {
