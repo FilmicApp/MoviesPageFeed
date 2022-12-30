@@ -1,6 +1,6 @@
 import Foundation
 
-public final class RemoteFeedLoader {
+public final class RemoteMoviesPageLoader: MoviesPageLoader {
     
     public typealias Result = LoadMoviesPageResult<Error>
 
@@ -31,9 +31,9 @@ public final class RemoteFeedLoader {
             
             switch result {
             case let .success(data, response):
-                completion(RemoteFeedLoader.handleSuccess(data, response))
+                completion(RemoteMoviesPageLoader.handleSuccess(data, response))
             case .failure:
-                completion(RemoteFeedLoader.handleFailure())
+                completion(RemoteMoviesPageLoader.handleFailure())
             }
         }
     }

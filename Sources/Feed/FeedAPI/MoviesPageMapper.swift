@@ -37,12 +37,12 @@ final class MoviesPageMapper {
     
     // MARK: - API
     
-    internal static func map(_ data: Data, from response: HTTPURLResponse) -> RemoteFeedLoader.Result {
+    internal static func map(_ data: Data, from response: HTTPURLResponse) -> RemoteMoviesPageLoader.Result {
         guard
             response.statusCode == OK_200,
             let moviesPageDTO = try? JSONDecoder().decode(MoviesPageDTO.self, from: data)
         else {
-            return .failure(RemoteFeedLoader.Error.invalidData)
+            return .failure(RemoteMoviesPageLoader.Error.invalidData)
         }
         
         return .success(moviesPageDTO.toDomain())
