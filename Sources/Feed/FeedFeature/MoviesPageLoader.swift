@@ -3,8 +3,6 @@ public enum LoadMoviesPageResult<Error: Swift.Error> {
     case failure(Error)
 }
 
-extension LoadMoviesPageResult: Equatable where Error: Equatable {}
-
 protocol MoviesPageLoader {
     associatedtype Error: Swift.Error
     

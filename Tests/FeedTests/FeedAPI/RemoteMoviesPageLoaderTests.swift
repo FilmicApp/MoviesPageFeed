@@ -33,7 +33,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func test_load_whenReceivesClientError_shouldDeliverError() {
         let (sut, client) = makeSut()
         
-        expect(sut, toCompleteWithResult: .failure(.connectivity), when: {
+        expect(sut, toCompleteWith: .failure(.connectivity), when: {
             let clientError = NSError(domain: "Test", code: 0)
             client.complete(with: clientError)
         })
@@ -45,7 +45,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let statusCodeSamples = [199, 201, 300, 400, 500]
         
         statusCodeSamples.enumerated().forEach { index, statusCode in
-            expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
+            expect(sut, toCompleteWith: .failure(.invalidData), when: {
                 let emptyMoviesPage = makeMoviesPageWithData()
                 client.complete(withStatusCode: statusCode, data: emptyMoviesPage.data, at: index)
             })
@@ -55,7 +55,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func test_load_whenReceives200HTTPResponseWithInvalidJSON_shouldDeliverError() {
         let (sut, client) = makeSut()
         
-        expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
+        expect(sut, toCompleteWith: .failure(.invalidData), when: {
             let invalidJson = Data("invalid data".utf8)
             client.complete(withStatusCode: 200, data: invalidJson)
         })
@@ -65,7 +65,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let (sut, client) = makeSut()
         
         let emptyMoviesPage = MoviesPage(page: 1, results: [], totalResults: 0, totalPages: 1)
-        expect(sut, toCompleteWithResult: .success(emptyMoviesPage), when: {
+        expect(sut, toCompleteWith: .success(emptyMoviesPage), when: {
             let emptyMoviesPage = makeMoviesPageWithData()
             client.complete(withStatusCode: 200, data: emptyMoviesPage.data)
         })
@@ -84,7 +84,7 @@ class RemoteFeedLoaderTests: XCTestCase {
             totalPages: 1
         )
         
-        expect(sut, toCompleteWithResult: .success(moviesPageTestObjects.model), when: {
+        expect(sut, toCompleteWith: .success(moviesPageTestObjects.model), when: {
             client.complete(withStatusCode: 200, data: moviesPageTestObjects.data)
         })
     }
@@ -185,13 +185,33 @@ class RemoteFeedLoaderTests: XCTestCase {
         }
     }
     
-    private func expect(_ sut: RemoteMoviesPageLoader, toCompleteWithResult result: RemoteMoviesPageLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
-        var capturedResults = [RemoteMoviesPageLoader.Result]()
-        sut.load { capturedResults.append($0) }
+    private func expect(
+        _ sut: RemoteMoviesPageLoader,
+        toCompleteWith expectedResult: RemoteMoviesPageLoader.Result,
+        when action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let expectation = expectation(description: "Wait for load completion")
+        
+        sut.load { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedItems), .success(expectedItems)):
+                XCTAssertEqual(receivedItems, expectedItems, file: file, line: line)
+                
+            case let (.failure(receivedError), .failure(expectedError)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+                
+            default:
+                XCTFail("Expected result \(expectedResult), but got \(receivedResult) instead", file: file, line: line)
+            }
+            
+            expectation.fulfill()
+        }
         
         action()
         
-        XCTAssertEqual(capturedResults, [result], file: file, line: line)
+        wait(for: [expectation], timeout: 1)
     }
 }
 
