@@ -46,7 +46,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         
         statusCodeSamples.enumerated().forEach { index, statusCode in
             expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
-                let emptyMoviesPage = makeMoviesPageWithData(page: 1, results: [],totalResults: 0, totalPages: 1)
+                let emptyMoviesPage = makeMoviesPageWithData()
                 client.complete(withStatusCode: statusCode, data: emptyMoviesPage.data, at: index)
             })
         }
@@ -66,7 +66,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         
         let emptyMoviesPage = MoviesPage(page: 1, results: [], totalResults: 0, totalPages: 1)
         expect(sut, toCompleteWithResult: .success(emptyMoviesPage), when: {
-            let emptyMoviesPage = makeMoviesPageWithData(page: 1, totalResults: 0, totalPages: 1)
+            let emptyMoviesPage = makeMoviesPageWithData()
             client.complete(withStatusCode: 200, data: emptyMoviesPage.data)
         })
     }
@@ -117,10 +117,10 @@ class RemoteFeedLoaderTests: XCTestCase {
     }
     
     private func makeMoviesPageWithData(
-        page: Int,
+        page: Int = 1,
         results: [(model: Movie, json: [String: Any])] = [],
-        totalResults: Int,
-        totalPages: Int)
+        totalResults: Int = 0,
+        totalPages: Int = 1)
     -> (model: MoviesPage, data: Data) {
         let model = MoviesPage(
             page: page,
