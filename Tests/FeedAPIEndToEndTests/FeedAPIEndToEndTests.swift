@@ -10,6 +10,9 @@ class FeedAPIEndToEndTests: XCTestCase {
         let client = URLSessionHTTPClient()
         let loader = RemoteMoviesPageLoader(url: testServerURL, client: client)
         
+        trackForMemoryLeaks(client)
+        trackForMemoryLeaks(loader)
+        
         let expectation = expectation(description: "Wait for load completion")
         
         var receivedResult: LoadMoviesPageResult?
