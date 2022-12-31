@@ -1,35 +1,6 @@
 import Feed
 import XCTest
 
-class URLSessionHTTPClient: HTTPClient {
-    
-    struct UnexpectedValuesRepresentation: Error {}
-    
-    // MARK: - Private Properties
-    
-    private let session: URLSession
-    
-    // MARK: - Init
-
-    init(session: URLSession = .shared) {
-        self.session = session
-    }
-    
-    // MARK: - API
-    
-    func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
-        session.dataTask(with: url) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-            } else if let data, let response = response as? HTTPURLResponse {
-                completion(.success(data, response))
-            } else {
-                completion(.failure(UnexpectedValuesRepresentation()))
-            }
-        }.resume()
-    }
-}
-
 class URLSessionHTTPClientTests: XCTestCase {
     
     // MARK: - Lifecycle
