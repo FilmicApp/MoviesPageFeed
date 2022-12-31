@@ -1,7 +1,7 @@
 import Feed
 import XCTest
 
-class URLSessionHTTPClient {
+class URLSessionHTTPClient: HTTPClient {
     
     struct UnexpectedValuesRepresentation: Error {}
     
@@ -108,7 +108,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     
     // MARK: - Factory methods
     
-    private func makeSut(file: StaticString = #filePath, line: UInt = #line) -> URLSessionHTTPClient {
+    private func makeSut(file: StaticString = #filePath, line: UInt = #line) -> HTTPClient {
         let sut = URLSessionHTTPClient()
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut
