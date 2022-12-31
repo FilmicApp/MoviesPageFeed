@@ -6,7 +6,7 @@ import XCTest
 class FeedAPIEndToEndTests: XCTestCase {
     
     func test_endToEndTestServerGETFeedResult_matchesFixedTestAccountData() {
-        let testServerURL = URL(string: "https://api.themoviedb.org/3/search/movie?api_key={{api_key}}&query=test")!
+        let testServerURL = URL(string: "https://api.themoviedb.org/3/search/movie?api_key=\(Secrets.tmdbAPIKey)&query=test")!
         let client = URLSessionHTTPClient()
         let loader = RemoteMoviesPageLoader(url: testServerURL, client: client)
         
