@@ -164,8 +164,8 @@ class RemoteFeedLoaderTests: XCTestCase {
         [
             "page": page,
             "results": results,
-            "totalResults": totalResults,
-            "totalPages": totalPages
+            "total_results": totalResults,
+            "total_pages": totalPages
         ]
     }
     

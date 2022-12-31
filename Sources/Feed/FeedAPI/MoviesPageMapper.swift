@@ -5,6 +5,14 @@ final class MoviesPageMapper {
     // MARK: - Private Structs
     
     private struct MoviesPageDTO: Decodable {
+        
+        enum CodingKeys: String, CodingKey {
+            case page
+            case results
+            case totalResults = "total_results"
+            case totalPages = "total_pages"
+        }
+        
         let page: Int
         let results: [MovieDTO]
         let totalResults: Int
