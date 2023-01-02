@@ -64,16 +64,6 @@
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FeedAPIEndToEndTests"
-               BuildableName = "FeedAPIEndToEndTests"
-               BlueprintName = "FeedAPIEndToEndTests"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
