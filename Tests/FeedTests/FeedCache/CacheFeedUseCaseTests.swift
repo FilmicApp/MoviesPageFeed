@@ -33,12 +33,13 @@ class CacheFeedUseCaseTests: XCTestCase {
     func test_save_whenCacheDeletionIsSuccessful_shouldRequestNewCacheInsertionWithTimestamp() {
         let timestamp = Date()
         let moviesPage = uniqueMoviesPage()
+        let cacheMoviesPage = CacheMoviesPage(from: moviesPage)
         let (sut, store) = makeSut(currentDate: { timestamp })
         
         sut.save(moviesPage)  { _ in }
         store.completeDeletionSuccessfully()
         
-        XCTAssertEqual(store.receivedMessages, [.deleteCachedFeed, .insert(moviesPage, timestamp)])
+        XCTAssertEqual(store.receivedMessages, [.deleteCachedFeed, .insert(cacheMoviesPage, timestamp)])
     }
     
     func test_save_whenReceivesDeletionError_shouldFail() {
@@ -164,7 +165,7 @@ extension CacheFeedUseCaseTests {
         
         enum ReceivedMessage: Equatable {
             case deleteCachedFeed
-            case insert(MoviesPage, Date)
+            case insert(CacheMoviesPage, Date)
         }
         
         // MARK: - Private Properties
@@ -182,7 +183,7 @@ extension CacheFeedUseCaseTests {
             receivedMessages.append(.deleteCachedFeed)
         }
         
-        func insert(_ moviesPage: MoviesPage, timestamp: Date, completion: @escaping InsertionCompletion) {
+        func insert(_ moviesPage: CacheMoviesPage, timestamp: Date, completion: @escaping InsertionCompletion) {
             insertionCompletions.append(completion)
             receivedMessages.append(.insert(moviesPage, timestamp))
         }
@@ -204,5 +205,25 @@ extension CacheFeedUseCaseTests {
         func completeInsertionSuccessfully(at index: Int = 0) {
             insertionCompletions[index](nil)
         }
+    }
+}
+
+private extension CacheMoviesPage {
+    init(from moviesPage: MoviesPage) {
+        self.init(
+            page: moviesPage.page,
+            results: moviesPage.results.map { CacheMovie.init(from: $0) },
+            totalResults: moviesPage.totalResults,
+            totalPages: moviesPage.totalPages
+        )
+    }
+}
+
+private extension CacheMovie {
+    init(from movie: Movie) {
+        self.init(
+            id: movie.id,
+            title: movie.title
+        )
     }
 }

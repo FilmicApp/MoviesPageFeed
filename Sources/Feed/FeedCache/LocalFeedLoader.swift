@@ -33,10 +33,27 @@ public final class LocalFeedLoader {
     // MARK: - Helpers
     
     private func cache(_ moviesPage: MoviesPage, with completion: @escaping (SaveResult) -> Void) {
-        store.insert(moviesPage, timestamp: currentDate()) { [weak self] error in
+        store.insert(moviesPage.toCacheMoviesPage(), timestamp: currentDate()) { [weak self] error in
             guard self != nil else { return }
             
             completion(error)
         }
+    }
+}
+
+private extension MoviesPage {
+    func toCacheMoviesPage() -> CacheMoviesPage {
+        CacheMoviesPage(
+            page: self.page,
+            results: self.results.toCacheMovie(),
+            totalResults: self.totalResults,
+            totalPages: self.totalPages
+        )
+    }
+}
+
+private extension Array where Element == Movie {
+    func toCacheMovie() -> [CacheMovie] {
+        return map { CacheMovie(id: $0.id, title: $0.title) }
     }
 }
