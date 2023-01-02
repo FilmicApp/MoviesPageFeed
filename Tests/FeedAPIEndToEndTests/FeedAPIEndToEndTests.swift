@@ -20,7 +20,7 @@ class FeedAPIEndToEndTests: XCTestCase {
     
     private func getFeedResult(file: StaticString = #filePath, line: UInt = #line) -> LoadMoviesPageResult? {
         let testServerURL = URL(string: "https://api.themoviedb.org/3/search/movie?api_key=\(Secrets.tmdbAPIKey)&query=test")!
-        let client = URLSessionHTTPClient()
+        let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
         let loader = RemoteMoviesPageLoader(url: testServerURL, client: client)
         
         trackForMemoryLeaks(client)
