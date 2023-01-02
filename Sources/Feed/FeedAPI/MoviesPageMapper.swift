@@ -2,57 +2,39 @@ import Foundation
 
 final class MoviesPageMapper {
     
-    // MARK: - Private Structs
-    
-    private struct MoviesPageDTO: Decodable {
-        enum CodingKeys: String, CodingKey {
-            case page
-            case results
-            case totalResults = "total_results"
-            case totalPages = "total_pages"
-        }
-        
-        let page: Int
-        let results: [MovieDTO]
-        let totalResults: Int
-        let totalPages: Int
-        
-        func toDomain() -> MoviesPage {
-            MoviesPage(
-                page: self.page,
-                results: self.results.map { $0.toDomain() },
-                totalResults: self.totalResults,
-                totalPages: self.totalPages
-            )
-        }
-    }
-
-    private struct MovieDTO: Decodable {
-        let id: Int
-        let title: String
-        
-        func toDomain() -> Movie {
-            Movie(
-                id: self.id,
-                title: self.title
-            )
-        }
-    }
-    
     // MARK: - Private Properties
     
     private static var OK_200: Int { return 200}
     
     // MARK: - API
     
-    internal static func map(_ data: Data, from response: HTTPURLResponse) -> RemoteMoviesPageLoader.Result {
+    internal static func map(_ data: Data, from response: HTTPURLResponse) throws -> RemoteMoviesPage {
         guard
             response.statusCode == OK_200,
-            let moviesPageDTO = try? JSONDecoder().decode(MoviesPageDTO.self, from: data)
+            let moviesPageDTO = try? JSONDecoder().decode(RemoteMoviesPage.self, from: data)
         else {
-            return .failure(RemoteMoviesPageLoader.Error.invalidData)
+            throw RemoteMoviesPageLoader.Error.invalidData
         }
         
-        return .success(moviesPageDTO.toDomain())
+        return moviesPageDTO
     }
+}
+
+struct RemoteMoviesPage: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case page
+        case results
+        case totalResults = "total_results"
+        case totalPages = "total_pages"
+    }
+    
+    let page: Int
+    let results: [RemoteMovie]
+    let totalResults: Int
+    let totalPages: Int
+}
+
+struct RemoteMovie: Decodable {
+    let id: Int
+    let title: String
 }
