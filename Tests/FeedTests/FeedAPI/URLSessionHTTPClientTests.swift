@@ -18,14 +18,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
     
     // MARK: - Tests
-    
-    func demo() {
-        let cache = URLCache(memoryCapacity: 10 * 1024 * 1024, diskCapacity: 100 * 1024 * 1024)
-        let configuration = URLSessionConfiguration.default
-        configuration.urlCache = cache
-        let session = URLSession(configuration: configuration)
-    }
-    
+        
     func test_getFromURL_performsGETRequestWithURL() {
         let url = anyUrl()
         let expectation = expectation(description: "Wait for request")
