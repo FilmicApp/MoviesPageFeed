@@ -3,6 +3,7 @@ import Foundation
 public final class RemoteMoviesPageLoader: MoviesPageLoader {
     
     public typealias Result = LoadMoviesPageResult
+    public typealias Completion = (Result) -> Void
 
     // MARK: - Enums
     
@@ -25,7 +26,7 @@ public final class RemoteMoviesPageLoader: MoviesPageLoader {
     
     // MARK: - API
     
-    public func load(completion: @escaping (Result) -> Void) {
+    public func load(completion: @escaping Completion) {
         client.get(from: url) { [weak self] result in
             guard self != nil else { return }
             
@@ -40,7 +41,7 @@ public final class RemoteMoviesPageLoader: MoviesPageLoader {
     
     // MARK: - Helpers
     
-    private static func handleSuccess(_ data: Data, _ response: HTTPURLResponse, with completion: (Result) -> Void) {
+    private static func handleSuccess(_ data: Data, _ response: HTTPURLResponse, with completion: Completion) {
         do {
             let remoteMoviesPage = try MoviesPageMapper.map(data, from: response)
             completion(.success(remoteMoviesPage.toModels()))
@@ -49,7 +50,7 @@ public final class RemoteMoviesPageLoader: MoviesPageLoader {
         }
     }
         
-    private static func handleFailure(with completion: (Result) -> Void) {
+    private static func handleFailure(with completion: Completion) {
         completion(.failure(Error.connectivity))
     }
 }
