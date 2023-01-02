@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/FilmicApp/MoviesPageFeed/actions/workflows/swift.yml/badge.svg?branch=main)](https://github.com/FilmicApp/MoviesPageFeed/actions/workflows/swift.yml)
 
-## Movie Feed Feature Specs
+## Movie Feed BDD Feature Specs
 
 ### Story: Customer requests to see their image feed
 
@@ -70,9 +70,6 @@ Given the customer doesn't have connectivity
 
 ### Load Feed From Cache Use Case
 
-#### Data:
-- URL
-
 #### Primary Course:
 1. Execute "Load Image Feed" command with above data.
 2. System retrieves feed data from cache.
@@ -88,3 +85,22 @@ Given the customer doesn't have connectivity
 
 #### Empty cache course (sad path):
 1. System delivers no feed images.
+
+### Cache Feed Use Case
+
+#### Data:
+- Image Feed
+
+#### Primary course (happy path):
+1. Execute "Save Image Feed" command with above data.
+2. System deletes old cache data.
+3. System encodes image feed.
+4. System timestamps the new cache.
+5. System saves new cache data.
+6. System delivers success message.
+
+#### Deleting error course (sad path):
+1. System delivers error.
+
+#### Saving error course (sad path):
+1. System delivers error.
