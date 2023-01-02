@@ -73,7 +73,7 @@ class FeedStore {
     }
 }
 
-class CacheFeedUseCase: XCTestCase {
+class CacheFeedUseCaseTests: XCTestCase {
     
     func test_init_whenCalled_shouldNotMessageStoreUponInitialisation() {
         let (_, store) = makeSut()
