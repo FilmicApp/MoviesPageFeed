@@ -1,7 +1,7 @@
 import Feed
 import XCTest
 
-class RemoteFeedLoaderTests: XCTestCase {
+class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     
     // MARK: - Tests
     
@@ -209,7 +209,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     }
 }
 
-extension RemoteFeedLoaderTests {
+extension LoadFeedFromRemoteUseCaseTests {
     private class HTTPClientSpy: HTTPClient {
         
         // MARK: - Private Properties
