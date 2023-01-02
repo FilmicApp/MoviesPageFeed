@@ -29,7 +29,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         
         XCTAssertEqual(store.receivedMessages, [.deleteCachedFeed])
     }
-        
+    
     func test_save_whenCacheDeletionIsSuccessful_shouldRequestNewCacheInsertionWithTimestamp() {
         let timestamp = Date()
         let moviesPage = uniqueMoviesPage()
@@ -93,7 +93,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         store.completeDeletionSuccessfully()
         sut = nil
         store.completeInsertion(with: anyNSError())
-
+        
         XCTAssertTrue(receivedResults.isEmpty)
     }
     
@@ -109,10 +109,10 @@ class CacheFeedUseCaseTests: XCTestCase {
         
         trackForMemoryLeaks(store)
         trackForMemoryLeaks(sut)
-
+        
         return (sut, store)
     }
-
+    
     private func uniqueMoviesPage() -> MoviesPage {
         let totalPages: Int = .random(in: 1...5)
         let currentPage: Int = .random(in: 1...totalPages)
@@ -189,7 +189,7 @@ extension CacheFeedUseCaseTests {
         }
         
         // MARK: - Spy Methods
-                
+        
         func completeDeletion(with error: Error, at index: Int = 0) {
             deletionCompletions[index](error)
         }
