@@ -31,15 +31,13 @@ class FeedStore {
 class CacheFeedUseCase: XCTestCase {
     
     func test_init_whenCalled_shouldNotDeleteCacheUponInitialisation() {
-        let store = FeedStore()
-        _ = LocalFeedLoader(store: store)
+        let (_, store) = makeSut()
         
         XCTAssertEqual(store.deleteCachedFeedCallCount, 0)
     }
     
     func test_save_whenCalled_shouldRequestCacheDeletion() {
-        let store = FeedStore()
-        let sut = LocalFeedLoader(store: store)
+        let (sut, store) = makeSut()
         
         sut.save(uniqueMoviesPage())
         
@@ -47,6 +45,13 @@ class CacheFeedUseCase: XCTestCase {
     }
     
     // MARK: - Helpers
+    
+    private func makeSut() -> (sut: LocalFeedLoader, store: FeedStore) {
+        let store = FeedStore()
+        let sut = LocalFeedLoader(store: store)
+        
+        return (sut, store)
+    }
 
     private func uniqueMoviesPage() -> MoviesPage {
         let totalPages: Int = .random(in: 1...5)
