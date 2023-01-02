@@ -2,6 +2,8 @@ import Foundation
 
 public final class LocalFeedLoader {
     
+    public typealias SaveResult = Error?
+    
     // MARK: - Private Properties
     
     private let store: FeedStore
@@ -16,7 +18,7 @@ public final class LocalFeedLoader {
     
     // MARK: - API
     
-    public func save(_ moviesPage: MoviesPage, completion: @escaping (Error?) -> Void) {
+    public func save(_ moviesPage: MoviesPage, completion: @escaping (SaveResult) -> Void) {
         store.deleteCachedFeed() { [weak self] error in
             guard let self else { return }
             
@@ -30,7 +32,7 @@ public final class LocalFeedLoader {
     
     // MARK: - Helpers
     
-    private func cache(_ moviesPage: MoviesPage, with completion: @escaping (Error?) -> Void) {
+    private func cache(_ moviesPage: MoviesPage, with completion: @escaping (SaveResult) -> Void) {
         store.insert(moviesPage, timestamp: currentDate()) { [weak self] error in
             guard self != nil else { return }
             
