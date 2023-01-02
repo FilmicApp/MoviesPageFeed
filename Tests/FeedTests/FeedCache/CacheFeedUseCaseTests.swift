@@ -32,14 +32,13 @@ class CacheFeedUseCaseTests: XCTestCase {
     
     func test_save_whenCacheDeletionIsSuccessful_shouldRequestNewCacheInsertionWithTimestamp() {
         let timestamp = Date()
-        let moviesPage = uniqueMoviesPage()
-        let cacheMoviesPage = CacheMoviesPage(from: moviesPage)
+        let moviesPage = uniqueMoviesPages()
         let (sut, store) = makeSut(currentDate: { timestamp })
         
-        sut.save(moviesPage)  { _ in }
+        sut.save(moviesPage.model)  { _ in }
         store.completeDeletionSuccessfully()
         
-        XCTAssertEqual(store.receivedMessages, [.deleteCachedFeed, .insert(cacheMoviesPage, timestamp)])
+        XCTAssertEqual(store.receivedMessages, [.deleteCachedFeed, .insert(moviesPage.cache, timestamp)])
     }
     
     func test_save_whenReceivesDeletionError_shouldFail() {
@@ -111,6 +110,13 @@ class CacheFeedUseCaseTests: XCTestCase {
         trackForMemoryLeaks(sut)
         
         return (sut, store)
+    }
+    
+    private func uniqueMoviesPages() -> (model: MoviesPage, cache: CacheMoviesPage) {
+        let model = uniqueMoviesPage()
+        let cache = CacheMoviesPage.init(from: model)
+        
+        return (model, cache)
     }
     
     private func uniqueMoviesPage() -> MoviesPage {
