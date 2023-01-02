@@ -6,11 +6,13 @@ class LocalFeedLoader {
     // MARK: - Private Properties
     
     private let store: FeedStore
+    private let currentDate: () -> Date
     
     // MARK: - Init
     
-    init(store: FeedStore) {
+    init(store: FeedStore, currentDate: @escaping () -> Date = Date.init) {
         self.store = store
+        self.currentDate = currentDate
     }
     
     // MARK: - API
@@ -18,7 +20,7 @@ class LocalFeedLoader {
     func save(_ moviesPage: MoviesPage) {
         store.deleteCachedFeed() { [unowned self] error in
             if error == nil {
-                self.store.insert(moviesPage)
+                self.store.insert(moviesPage, timestamp: self.currentDate())
             }
         }
     }
@@ -29,6 +31,7 @@ class FeedStore {
     
     var deleteCachedFeedCallCount = 0
     var insertCallCount = 0
+    var insertions = [(moviesPage: MoviesPage, timestamp: Date)]()
     
     private var deletionCompletions = [DeletionCompletion]()
     
@@ -45,8 +48,9 @@ class FeedStore {
         deletionCompletions[index](nil)
     }
     
-    func insert(_ moviesPage: MoviesPage) {
+    func insert(_ moviesPage: MoviesPage, timestamp: Date) {
         insertCallCount += 1
+        insertions.append((moviesPage, timestamp))
     }
 }
 
@@ -87,11 +91,28 @@ class CacheFeedUseCase: XCTestCase {
         XCTAssertEqual(store.insertCallCount, 1)
     }
     
+    func test_save_whenCacheDeletionIsSuccessful_shouldRequestNewCacheInsertionWithTimestamp() {
+        let timestamp = Date()
+        let moviesPage = uniqueMoviesPage()
+        let (sut, store) = makeSut(currentDate: { timestamp })
+        
+        sut.save(moviesPage)
+        store.completeDeletionSuccessfully()
+        
+        XCTAssertEqual(store.insertions.count, 1)
+        XCTAssertEqual(store.insertions.first?.moviesPage, moviesPage)
+        XCTAssertEqual(store.insertions.first?.timestamp, timestamp)
+    }
+    
     // MARK: - Helpers
     
-    private func makeSut() -> (sut: LocalFeedLoader, store: FeedStore) {
+    private func makeSut(
+        currentDate: @escaping () -> Date = Date.init,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (sut: LocalFeedLoader, store: FeedStore) {
         let store = FeedStore()
-        let sut = LocalFeedLoader(store: store)
+        let sut = LocalFeedLoader(store: store, currentDate: currentDate)
         
         trackForMemoryLeaks(store)
         trackForMemoryLeaks(sut)
