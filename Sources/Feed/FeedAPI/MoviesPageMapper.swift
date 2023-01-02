@@ -5,7 +5,6 @@ final class MoviesPageMapper {
     // MARK: - Private Structs
     
     private struct MoviesPageDTO: Decodable {
-        
         enum CodingKeys: String, CodingKey {
             case page
             case results
@@ -29,7 +28,6 @@ final class MoviesPageMapper {
     }
 
     private struct MovieDTO: Decodable {
-        
         let id: Int
         let title: String
         
