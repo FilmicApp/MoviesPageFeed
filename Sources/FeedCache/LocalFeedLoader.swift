@@ -47,7 +47,6 @@ public final class LocalFeedLoader {
                 completion(.success(moviesPage.toDomain()))
                 
             case .found:
-                self.store.deleteCachedFeed() { _ in }
                 let moviesPage = MoviesPage(page: 1, results: [], totalResults: 1, totalPages: 1)
                 completion(.success(moviesPage))
                 
@@ -63,7 +62,11 @@ public final class LocalFeedLoader {
             switch result {
             case .failure(_):
                 self.store.deleteCachedFeed { _ in }
-            default:
+                
+            case let .found(_, timestamp) where !self.validate(timestamp):
+                self.store.deleteCachedFeed { _ in }
+                
+            case .empty, .found:
                 break
             }
         }
