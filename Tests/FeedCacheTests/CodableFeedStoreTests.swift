@@ -4,18 +4,91 @@ import XCTest
 class CodableFeedStore {
     
     private struct Cache: Codable {
-        let moviesPage: CacheMoviesPage
+        let moviesPage: CodableMoviesPage
         let timestamp: Date
+        
+        var cacheMoviesPage: CacheMoviesPage {
+            return moviesPage.toCacheMoviesPage()
+        }
+    }
+    
+    struct CodableMoviesPage: Codable {
+        
+        // MARK: - Public Properties
+        
+        let page: Int
+        let results: [CodableMovie]
+        let totalResults: Int
+        let totalPages: Int
+        
+        // MARK: - Init
+        
+        init(page: Int, results: [CodableMovie], totalResults: Int, totalPages: Int) {
+            self.page = page
+            self.results = results
+            self.totalResults = totalResults
+            self.totalPages = totalPages
+        }
+        
+        init(_ moviesPage: CacheMoviesPage) {
+            self.page = moviesPage.page
+            self.results = moviesPage.results.map { CodableMovie($0) }
+            self.totalResults = moviesPage.totalResults
+            self.totalPages = moviesPage.totalPages
+        }
+        
+        // MARK: - API
+        
+        func toCacheMoviesPage() -> CacheMoviesPage {
+            CacheMoviesPage(
+                page: self.page,
+                results: self.results.map { $0.toCacheMovie() },
+                totalResults: self.totalResults,
+                totalPages: self.totalPages
+            )
+        }
+    }
+    
+    struct CodableMovie: Codable {
+        
+        // MARK: - Public Properties
+        
+        let id: Int
+        let title: String
+        
+        // MARK: - Init
+        
+        init(id: Int, title: String) {
+            self.id = id
+            self.title = title
+        }
+        
+        init(_ movie: CacheMovie) {
+            self.id = movie.id
+            self.title = movie.title
+        }
+        
+        // MARK: - API
+        
+        func toCacheMovie() -> CacheMovie {
+            CacheMovie(
+                id: self.id,
+                title: self.title
+            )
+        }
     }
     
     // MARK: - Private Properties
     
     private let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
+    
     // MARK: - API
     
     func insert(_ moviesPage: CacheMoviesPage, timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
         let encoder = JSONEncoder()
-        let encodedValues = try! encoder.encode(Cache(moviesPage: moviesPage, timestamp: timestamp))
+        let codableMoviesPage = CodableMoviesPage(moviesPage)
+        let cache = Cache(moviesPage: codableMoviesPage, timestamp: timestamp)
+        let encodedValues = try! encoder.encode(cache)
         try! encodedValues.write(to: storeURL)
         
         completion(nil)
@@ -27,8 +100,9 @@ class CodableFeedStore {
         }
         
         let decoder = JSONDecoder()
-        let cache = try! decoder.decode(Cache.self, from: data)
-        completion(.found(moviesPage: cache.moviesPage, timestamp: cache.timestamp))
+        let codableCache = try! decoder.decode(Cache.self, from: data)
+        let cacheMoviesPage = codableCache.moviesPage.toCacheMoviesPage()
+        completion(.found(moviesPage: cacheMoviesPage, timestamp: codableCache.timestamp))
     }
 }
 

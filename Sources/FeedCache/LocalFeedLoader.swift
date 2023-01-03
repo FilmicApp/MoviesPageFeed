@@ -97,6 +97,7 @@ private extension MoviesPage {
     func toCacheMoviesPage() -> CacheMoviesPage {
         CacheMoviesPage(
             page: self.page,
+            // TODO: Rename function to "toCacheMovies()"
             results: self.results.toCacheMovie(),
             totalResults: self.totalResults,
             totalPages: self.totalPages
