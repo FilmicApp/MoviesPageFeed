@@ -68,7 +68,7 @@ class CodableFeedStoreTests: XCTestCase {
         expect(sut, toRetrieveTwice: .empty)
     }
     
-    func test_retrieve_whenCallingAfterInsertingToCache_shouldDeliverInsertedValues() {
+    func test_retrieve_whenCacheIsNonEmpty_shouldDeliverFoundValues() {
         let sut = makeSut()
         let moviesPage = uniqueMoviesPages().cache
         let timestamp = Date()
