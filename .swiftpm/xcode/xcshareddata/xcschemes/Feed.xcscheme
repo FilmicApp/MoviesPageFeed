@@ -82,16 +82,6 @@
       </CodeCoverageTargets>
       <Testables>
          <TestableReference
-            skipped = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FeedAPIEndToEndTests"
-               BuildableName = "FeedAPIEndToEndTests"
-               BlueprintName = "FeedAPIEndToEndTests"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
             skipped = "NO"
             testExecutionOrdering = "random">
             <BuildableReference
@@ -110,17 +100,6 @@
                BlueprintIdentifier = "FeedCacheTests"
                BuildableName = "FeedCacheTests"
                BlueprintName = "FeedCacheTests"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            testExecutionOrdering = "random">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "HelpersTests"
-               BuildableName = "HelpersTests"
-               BlueprintName = "HelpersTests"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
