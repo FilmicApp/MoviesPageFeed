@@ -62,6 +62,20 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         })
     }
     
+    func test_load_whenCacheIsMoreThanSevenDaysOld_shouldDeliverEmptyMoviesPage() {
+        let cachedMoviesPage = uniqueMoviesPages().cache
+        let emptyMoviesPage = emptyMoviesPages().model
+        let fixedCurrentDate = Date()
+        let moreThanSevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7).adding(seconds: -1)
+
+        let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
+        
+        expect(sut, toCompleteWith: .success(emptyMoviesPage), when: {
+            store.completeRetrieval(with: cachedMoviesPage, timestamp: moreThanSevenDaysOldTimeStamp)
+        })
+    }
+
+    
     // MARK: - Factory methods
     
     private func makeSut(
