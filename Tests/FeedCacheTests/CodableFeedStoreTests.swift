@@ -13,7 +13,6 @@ class CodableFeedStore {
         self.storeURL = storeURL
     }
     
-    
     // MARK: - API
     
     func deleteCachedFeed(completion: @escaping FeedStore.DeletionCompletion) {
@@ -196,7 +195,11 @@ class CodableFeedStoreTests: XCTestCase {
     }
     
     private func testSpecificStoreURL() -> URL {
-        return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("\(type(of: self)).store")
+        return cachesDirectory().appendingPathComponent("\(type(of: self)).store")
+    }
+    
+    private func cachesDirectory() -> URL {
+        return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
     }
     
     private func makeUniqueCacheableTuple() -> (moviesPage: CacheMoviesPage, timestamp: Date) {
@@ -205,10 +208,6 @@ class CodableFeedStoreTests: XCTestCase {
         return (moviesPage, timestamp)
     }
     
-    private func cachesDirectory() -> URL {
-        return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-    }
-
     // MARK: - Helpers
     
     private func setUpEmptyStoreState() {
