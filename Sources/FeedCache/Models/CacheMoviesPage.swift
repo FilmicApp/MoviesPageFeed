@@ -1,4 +1,4 @@
-public struct CacheMoviesPage: Equatable {
+public struct CacheMoviesPage: Equatable, Codable {
     
     // MARK: - Public Properties
     
