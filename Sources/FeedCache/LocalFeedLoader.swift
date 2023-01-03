@@ -33,10 +33,15 @@ public final class LocalFeedLoader {
     }
     
     public func load(completion: @escaping (LoadResult) -> Void) {
-        store.retrieve { error in
-            if let error {
+        store.retrieve { result in
+            switch result {
+            case let .failure(error):
                 completion(.failure(error))
-            } else {
+                
+            case let .found(moviesPage, _):
+                completion(.success(moviesPage.toDomain()))
+                
+            case .empty:
                 let moviesPage = MoviesPage(page: 1, results: [], totalResults: 1, totalPages: 1)
                 completion(.success(moviesPage))
             }
@@ -68,5 +73,22 @@ private extension MoviesPage {
 private extension Array where Element == Movie {
     func toCacheMovie() -> [CacheMovie] {
         return map { CacheMovie(id: $0.id, title: $0.title) }
+    }
+}
+
+private extension CacheMoviesPage {
+    func toDomain() -> MoviesPage {
+        MoviesPage(
+            page: self.page,
+            results: self.results.toDomain(),
+            totalResults: self.totalResults,
+            totalPages: self.totalPages
+        )
+    }
+}
+
+private extension Array where Element == CacheMovie {
+    func toDomain() -> [Movie] {
+        return map { Movie(id: $0.id, title: $0.title) }
     }
 }

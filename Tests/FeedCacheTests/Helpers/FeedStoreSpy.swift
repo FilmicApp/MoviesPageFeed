@@ -1,4 +1,5 @@
 import FeedCache
+import FeedFeature
 import Foundation
 
 class FeedStoreSpy: FeedStore {
@@ -53,11 +54,15 @@ class FeedStoreSpy: FeedStore {
     }
     
     func completeRetrieval(with error: Error, at index: Int = 0) {
-        retrievalCompletions[index](error)
+        retrievalCompletions[index](.failure(error))
     }
     
     func completeRetrievalWithEmptyCache(at index: Int = 0) {
-        retrievalCompletions[index](nil)
+        retrievalCompletions[index](.empty)
+    }
+    
+    func completeRetrieval(with moviesPage: CacheMoviesPage, timestamp: Date, at index: Int = 0) {
+        retrievalCompletions[index](.found(moviesPage: moviesPage, timestamp: timestamp))
     }
 }
 
