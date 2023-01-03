@@ -97,8 +97,7 @@ private extension MoviesPage {
     func toCacheMoviesPage() -> CacheMoviesPage {
         CacheMoviesPage(
             page: self.page,
-            // TODO: Rename function to "toCacheMovies()"
-            results: self.results.toCacheMovie(),
+            results: self.results.toCacheMovies(),
             totalResults: self.totalResults,
             totalPages: self.totalPages
         )
@@ -106,7 +105,7 @@ private extension MoviesPage {
 }
 
 private extension Array where Element == Movie {
-    func toCacheMovie() -> [CacheMovie] {
+    func toCacheMovies() -> [CacheMovie] {
         return map { CacheMovie(id: $0.id, title: $0.title) }
     }
 }
