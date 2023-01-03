@@ -100,6 +100,15 @@ class CodableFeedStoreTests: XCTestCase {
         
         expect(sut, toRetrieve: .failure(anyNSError()))
     }
+        
+    func test_retrieve_whenReceivesRetrievalError_shouldHaveNoSideEffects() {
+        let storeURL = testSpecificStoreURL()
+        let sut = makeSut(storeURL: storeURL)
+        
+        try! "invalidData".write(to: storeURL, atomically: false, encoding: .utf8)
+        
+        expect(sut, toRetrieveTwice: .failure(anyNSError()))
+    }
     
     // MARK: - Factory methods
     
