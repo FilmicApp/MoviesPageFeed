@@ -5,25 +5,18 @@ private final class FeedCachePolicy {
     
     // MARK: - Private Properties
     
-    private let currentDate: () -> Date
     private let calendar = Calendar(identifier: .gregorian)
 
     private var maxCacheAgeInDays = 7
-    
-    // MARK: - Init
-    
-    init(currentDate: @escaping () -> Date) {
-        self.currentDate = currentDate
-    }
-    
+        
     // MARK: - API
     
-    func validate(_ timestamp: Date) -> Bool {
+    func validate(_ timestamp: Date, against date: Date) -> Bool {
         guard let maxCacheAge = calendar.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) else {
             return false
         }
         
-        return currentDate() < maxCacheAge
+        return date < maxCacheAge
     }
 }
 
@@ -33,14 +26,13 @@ public final class LocalFeedLoader {
     
     private let store: FeedStore
     private let currentDate: () -> Date
-    private let cachePolicy: FeedCachePolicy
+    private let cachePolicy = FeedCachePolicy()
         
     // MARK: - Init
     
     public init(store: FeedStore, currentDate: @escaping () -> Date) {
         self.store = store
         self.currentDate = currentDate
-        self.cachePolicy = FeedCachePolicy(currentDate: currentDate)
     }
 }
 
@@ -88,7 +80,7 @@ extension LocalFeedLoader: MoviesPageLoader {
             case let .failure(error):
                 completion(.failure(error))
                 
-            case let .found(moviesPage, timestamp) where self.cachePolicy.validate(timestamp):
+            case let .found(moviesPage, timestamp) where self.cachePolicy.validate(timestamp, against: self.currentDate()):
                 completion(.success(moviesPage.toDomain()))
                 
             case .found, .empty:
@@ -111,7 +103,7 @@ extension LocalFeedLoader {
             case .failure(_):
                 self.store.deleteCachedFeed { _ in }
                 
-            case let .found(_, timestamp) where !self.cachePolicy.validate(timestamp):
+            case let .found(_, timestamp) where !self.cachePolicy.validate(timestamp, against: self.currentDate()):
                 self.store.deleteCachedFeed { _ in }
                 
             case .empty, .found:
