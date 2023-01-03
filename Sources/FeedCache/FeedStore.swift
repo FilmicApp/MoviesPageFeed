@@ -16,6 +16,8 @@ public protocol FeedStore {
     func retrieve(completion: @escaping RetrievalCompletion)
 }
 
+// TODO: Move these into own files
+
 public struct CacheMoviesPage: Equatable {
     
     // MARK: - Public Properties

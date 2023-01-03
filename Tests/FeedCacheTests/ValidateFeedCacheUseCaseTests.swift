@@ -30,38 +30,38 @@ class ValidateFeedCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
-    func test_validateCache_whenCacheIsLessThanSevenDaysOld_shouldNotDeleteCache() {
+    func test_validateCache_whenCacheIsNonExpired_shouldNotDeleteCache() {
         let moviesPage = uniqueMoviesPages()
         let fixedCurrentDate = Date()
-        let lessThanSevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7).adding(seconds: 1)
+        let nonExpiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: 1)
         let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
         
         sut.validateCache()
-        store.completeRetrieval(with: moviesPage.cache, timestamp: lessThanSevenDaysOldTimeStamp)
+        store.completeRetrieval(with: moviesPage.cache, timestamp: nonExpiredTimestamp)
         
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
-    func test_validateCache_whenCacheIsSevenDaysOld_shouldDeleteCache() {
+    func test_validateCache_whenCacheHasReachedExpiration_shouldDeleteCache() {
         let cachedMoviesPage = uniqueMoviesPages().cache
         let fixedCurrentDate = Date()
-        let sevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7)
+        let expirationTimestamp = fixedCurrentDate.minusFeedCacheMaxAge()
         let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
         
         sut.validateCache()
-        store.completeRetrieval(with: cachedMoviesPage, timestamp: sevenDaysOldTimeStamp)
+        store.completeRetrieval(with: cachedMoviesPage, timestamp: expirationTimestamp)
         
         XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
     }
     
-    func test_validateCache_whenCacheIsMoreThanSevenDaysOld_shouldDeleteCache() {
+    func test_validateCache_whenCacheHasExceededExpiration_shouldDeleteCache() {
         let cachedMoviesPage = uniqueMoviesPages().cache
         let fixedCurrentDate = Date()
-        let moreThanSevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7).adding(seconds: -1)
+        let expiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
 
         sut.validateCache()
-        store.completeRetrieval(with: cachedMoviesPage, timestamp: moreThanSevenDaysOldTimeStamp)
+        store.completeRetrieval(with: cachedMoviesPage, timestamp: expiredTimestamp)
         
         XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
     }

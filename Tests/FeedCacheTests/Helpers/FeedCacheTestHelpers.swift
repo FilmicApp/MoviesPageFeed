@@ -66,7 +66,11 @@ extension CacheMovie {
 }
 
 extension Date {
-    func adding(days: Int) -> Date {
+    func minusFeedCacheMaxAge() -> Date {
+        return adding(days: -7)
+    }
+    
+    private func adding(days: Int) -> Date {
         return Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
     }
     

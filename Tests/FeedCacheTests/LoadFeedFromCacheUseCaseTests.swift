@@ -38,38 +38,38 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         })
     }
     
-    func test_load_whenCacheIsLessThanSevenDaysOld_shouldDeliverCachedMoviesPage() {
+    func test_load_whenCacheIsNonExpired_shouldDeliverCachedMoviesPage() {
         let moviesPage = uniqueMoviesPages()
         let fixedCurrentDate = Date()
-        let lessThanSevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7).adding(seconds: 1)
+        let nonExpiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: 1)
         let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
         
         expect(sut, toCompleteWith: .success(moviesPage.model), when: {
-            store.completeRetrieval(with: moviesPage.cache, timestamp: lessThanSevenDaysOldTimeStamp)
+            store.completeRetrieval(with: moviesPage.cache, timestamp: nonExpiredTimestamp)
         })
     }
     
-    func test_load_whenCacheIsSevenDaysOld_shouldDeliverEmptyMoviesPage() {
+    func test_load_whenCacheHasReachedExpiration_shouldDeliverEmptyMoviesPage() {
         let cachedMoviesPage = uniqueMoviesPages().cache
         let emptyMoviesPage = emptyMoviesPages().model
         let fixedCurrentDate = Date()
-        let sevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7)
+        let expirationTimestamp = fixedCurrentDate.minusFeedCacheMaxAge()
         let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
         
         expect(sut, toCompleteWith: .success(emptyMoviesPage), when: {
-            store.completeRetrieval(with: cachedMoviesPage, timestamp: sevenDaysOldTimeStamp)
+            store.completeRetrieval(with: cachedMoviesPage, timestamp: expirationTimestamp)
         })
     }
     
-    func test_load_whenCacheIsMoreThanSevenDaysOld_shouldDeliverEmptyMoviesPage() {
+    func test_load_whenCacheHasExceededExpiration_shouldDeliverEmptyMoviesPage() {
         let cachedMoviesPage = uniqueMoviesPages().cache
         let emptyMoviesPage = emptyMoviesPages().model
         let fixedCurrentDate = Date()
-        let moreThanSevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7).adding(seconds: -1)
+        let expiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
         
         expect(sut, toCompleteWith: .success(emptyMoviesPage), when: {
-            store.completeRetrieval(with: cachedMoviesPage, timestamp: moreThanSevenDaysOldTimeStamp)
+            store.completeRetrieval(with: cachedMoviesPage, timestamp: expiredTimestamp)
         })
     }
     
@@ -91,38 +91,38 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
-    func test_load_whenCacheIsLessThanSevenDaysOld_shouldNotHaveSideEffects() {
+    func test_load_whenCacheIsNonExpired_shouldNotHaveSideEffects() {
         let moviesPage = uniqueMoviesPages()
         let fixedCurrentDate = Date()
-        let lessThanSevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7).adding(seconds: 1)
+        let nonExpiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: 1)
         let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
         
         sut.load { _ in }
-        store.completeRetrieval(with: moviesPage.cache, timestamp: lessThanSevenDaysOldTimeStamp)
+        store.completeRetrieval(with: moviesPage.cache, timestamp: nonExpiredTimestamp)
         
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
-    func test_load_whenCacheIsSevenDaysOld_shouldHaveNoSideEffects() {
+    func test_load_whenCacheHasReachedExpiration_shouldHaveNoSideEffects() {
         let cachedMoviesPage = uniqueMoviesPages().cache
         let fixedCurrentDate = Date()
-        let sevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7)
+        let expirationTimestamp = fixedCurrentDate.minusFeedCacheMaxAge()
         let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
         
         sut.load { _ in }
-        store.completeRetrieval(with: cachedMoviesPage, timestamp: sevenDaysOldTimeStamp)
+        store.completeRetrieval(with: cachedMoviesPage, timestamp: expirationTimestamp)
         
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
-    func test_load_whenCacheIsMoreThanSevenDaysOld_shouldHaveNoSideEffects() {
+    func test_load_whenCacheHasExceededExpiration_shouldHaveNoSideEffects() {
         let cachedMoviesPage = uniqueMoviesPages().cache
         let fixedCurrentDate = Date()
-        let moreThanSevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7).adding(seconds: -1)
+        let expiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
 
         sut.load { _ in }
-        store.completeRetrieval(with: cachedMoviesPage, timestamp: moreThanSevenDaysOldTimeStamp)
+        store.completeRetrieval(with: cachedMoviesPage, timestamp: expiredTimestamp)
         
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
