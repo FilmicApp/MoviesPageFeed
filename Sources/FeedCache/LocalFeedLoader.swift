@@ -5,13 +5,17 @@ private final class FeedCachePolicy {
     
     // MARK: - Private Properties
     
-    private let calendar = Calendar(identifier: .gregorian)
+    private static let calendar = Calendar(identifier: .gregorian)
 
-    private var maxCacheAgeInDays = 7
+    private static var maxCacheAgeInDays = 7
+    
+    // MARK: - Init
+    
+    private init() {}
         
     // MARK: - API
     
-    func validate(_ timestamp: Date, against date: Date) -> Bool {
+    static func validate(_ timestamp: Date, against date: Date) -> Bool {
         guard let maxCacheAge = calendar.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) else {
             return false
         }
@@ -26,7 +30,6 @@ public final class LocalFeedLoader {
     
     private let store: FeedStore
     private let currentDate: () -> Date
-    private let cachePolicy = FeedCachePolicy()
         
     // MARK: - Init
     
@@ -80,7 +83,7 @@ extension LocalFeedLoader: MoviesPageLoader {
             case let .failure(error):
                 completion(.failure(error))
                 
-            case let .found(moviesPage, timestamp) where self.cachePolicy.validate(timestamp, against: self.currentDate()):
+            case let .found(moviesPage, timestamp) where FeedCachePolicy.validate(timestamp, against: self.currentDate()):
                 completion(.success(moviesPage.toDomain()))
                 
             case .found, .empty:
@@ -103,7 +106,7 @@ extension LocalFeedLoader {
             case .failure(_):
                 self.store.deleteCachedFeed { _ in }
                 
-            case let .found(_, timestamp) where !self.cachePolicy.validate(timestamp, against: self.currentDate()):
+            case let .found(_, timestamp) where !FeedCachePolicy.validate(timestamp, against: self.currentDate()):
                 self.store.deleteCachedFeed { _ in }
                 
             case .empty, .found:
