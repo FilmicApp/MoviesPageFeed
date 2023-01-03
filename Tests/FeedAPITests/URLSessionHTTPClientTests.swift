@@ -1,4 +1,4 @@
-import Feed
+import FeedAPI
 import XCTest
 
 class URLSessionHTTPClientTests: XCTestCase {

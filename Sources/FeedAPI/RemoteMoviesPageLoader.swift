@@ -1,8 +1,10 @@
+import FeedFeature
 import Foundation
 
 public final class RemoteMoviesPageLoader: MoviesPageLoader {
     
     public typealias Result = LoadMoviesPageResult
+    public typealias Completion = (Result) -> Void
 
     // MARK: - Enums
     
@@ -25,13 +27,13 @@ public final class RemoteMoviesPageLoader: MoviesPageLoader {
     
     // MARK: - API
     
-    public func load(completion: @escaping (Result) -> Void) {
+    public func load(completion: @escaping Completion) {
         client.get(from: url) { [weak self] result in
             guard self != nil else { return }
             
             switch result {
             case let .success(data, response):
-                completion(RemoteMoviesPageLoader.handleSuccess(data, response))
+                completion(RemoteMoviesPageLoader.map(data, from: response))
             case .failure:
                 completion(RemoteMoviesPageLoader.handleFailure())
             }
@@ -40,11 +42,36 @@ public final class RemoteMoviesPageLoader: MoviesPageLoader {
     
     // MARK: - Helpers
     
-    private static func handleSuccess(_ data: Data, _ response: HTTPURLResponse) -> Result {
-        MoviesPageMapper.map(data, from: response)
+    private static func map(_ data: Data, from response: HTTPURLResponse) -> Result {
+        do {
+            let remoteMoviesPage = try MoviesPageMapper.map(data, from: response)
+            return .success(remoteMoviesPage.toDomain())
+        } catch {
+            return .failure(error)
+        }
     }
         
     private static func handleFailure() -> Result {
         .failure(Error.connectivity)
+    }
+}
+
+private extension RemoteMoviesPage {
+    func toDomain() -> MoviesPage {
+        MoviesPage(
+            page: self.page,
+            results: self.results.map { $0.toDomain() },
+            totalResults: self.totalResults,
+            totalPages: self.totalPages
+        )
+    }
+}
+
+private extension RemoteMovie {
+    func toDomain() -> Movie {
+        Movie(
+            id: self.id,
+            title: self.title
+        )
     }
 }
