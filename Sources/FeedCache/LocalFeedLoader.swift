@@ -4,6 +4,7 @@ import Foundation
 public final class LocalFeedLoader {
     
     public typealias SaveResult = Error?
+    public typealias LoadResult = LoadMoviesPageResult
     
     // MARK: - Private Properties
     
@@ -31,8 +32,12 @@ public final class LocalFeedLoader {
         }
     }
     
-    public func load(completion: @escaping (SaveResult) -> Void) {
-        store.retrieve(completion: completion)
+    public func load(completion: @escaping (LoadResult) -> Void) {
+        store.retrieve { error in
+            if let error {
+                completion(.failure(error))
+            }
+        }
     }
     
     // MARK: - Helpers
