@@ -32,26 +32,26 @@ public final class RemoteMoviesPageLoader: MoviesPageLoader {
             
             switch result {
             case let .success(data, response):
-                RemoteMoviesPageLoader.handleSuccess(data, response, with: completion)
+                completion(RemoteMoviesPageLoader.map(data, from: response))
             case .failure:
-                RemoteMoviesPageLoader.handleFailure(with: completion)
+                completion(RemoteMoviesPageLoader.handleFailure())
             }
         }
     }
     
     // MARK: - Helpers
     
-    private static func handleSuccess(_ data: Data, _ response: HTTPURLResponse, with completion: Completion) {
+    private static func map(_ data: Data, from response: HTTPURLResponse) -> Result {
         do {
             let remoteMoviesPage = try MoviesPageMapper.map(data, from: response)
-            completion(.success(remoteMoviesPage.toModels()))
+            return .success(remoteMoviesPage.toModels())
         } catch {
-            completion(.failure(error))
+            return .failure(error)
         }
     }
         
-    private static func handleFailure(with completion: Completion) {
-        completion(.failure(Error.connectivity))
+    private static func handleFailure() -> Result {
+        .failure(Error.connectivity)
     }
 }
 
