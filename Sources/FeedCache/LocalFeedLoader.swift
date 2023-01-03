@@ -61,7 +61,7 @@ extension LocalFeedLoader {
 
 }
 
-extension LocalFeedLoader {
+extension LocalFeedLoader: MoviesPageLoader {
     
     // MARK: - API
     
