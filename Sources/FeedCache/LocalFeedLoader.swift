@@ -1,3 +1,4 @@
+import FeedFeature
 import Foundation
 
 public final class LocalFeedLoader {
@@ -11,7 +12,7 @@ public final class LocalFeedLoader {
     
     // MARK: - Init
     
-    public init(store: FeedStore, currentDate: @escaping () -> Date = Date.init) {
+    public init(store: FeedStore, currentDate: @escaping () -> Date) {
         self.store = store
         self.currentDate = currentDate
     }

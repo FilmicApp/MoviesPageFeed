@@ -1,3 +1,4 @@
+import FeedFeature
 import Foundation
 
 public final class RemoteMoviesPageLoader: MoviesPageLoader {

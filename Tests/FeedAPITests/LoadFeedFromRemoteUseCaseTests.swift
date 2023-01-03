@@ -1,4 +1,5 @@
-import Feed
+import FeedAPI
+import FeedFeature
 import XCTest
 
 class LoadFeedFromRemoteUseCaseTests: XCTestCase {

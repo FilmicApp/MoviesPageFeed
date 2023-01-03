@@ -1,6 +1,6 @@
+import FeedAPI
+import FeedFeature
 import Foundation
-
-import Feed
 import XCTest
 
 class FeedAPIEndToEndTests: XCTestCase {

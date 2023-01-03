@@ -1,4 +1,5 @@
-import Feed
+import FeedCache
+import FeedFeature
 import XCTest
 
 class CacheFeedUseCaseTests: XCTestCase {
