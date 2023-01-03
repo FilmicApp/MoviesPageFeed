@@ -73,12 +73,7 @@ class CodableFeedStoreTests: XCTestCase {
         let moviesPage = uniqueMoviesPages().cache
         let timestamp = Date()
         
-        let expectation = expectation(description: "Wait for cache retrieval")
-        sut.insert(moviesPage, timestamp: timestamp) { insertionError in
-            XCTAssertNil(insertionError, "Expected feed to be inserted successfully")
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
+        insert((moviesPage, timestamp), to: sut)
         
         expect(sut, toRetrieve: .found(moviesPage: moviesPage, timestamp: timestamp))
     }
@@ -88,13 +83,8 @@ class CodableFeedStoreTests: XCTestCase {
         let moviesPage = uniqueMoviesPages().cache
         let timestamp = Date()
         
-        let expectation = expectation(description: "Wait for cache insertion")
-        sut.insert(moviesPage, timestamp: timestamp) { insertionError in
-            XCTAssertNil(insertionError, "Expected feed to be inserted successfully")
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
-        
+        insert((moviesPage, timestamp), to: sut)
+                
         expect(sut, toRetrieve: .found(moviesPage: moviesPage, timestamp: timestamp))
     }
     
@@ -125,6 +115,15 @@ class CodableFeedStoreTests: XCTestCase {
     
     private func deleteStoreArtefact() {
         try? FileManager.default.removeItem(at: testSpecificStoreURL())
+    }
+    
+    private func insert(_ cache: (moviesPage: CacheMoviesPage, timestamp: Date), to sut: CodableFeedStore) {
+        let expectation = expectation(description: "Wait for cache insertion")
+        sut.insert(cache.moviesPage, timestamp: cache.timestamp) { insertionError in
+            XCTAssertNil(insertionError, "Expected feed to be inserted successfully")
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
     }
     
     private func expect(
@@ -160,7 +159,6 @@ class CodableFeedStoreTests: XCTestCase {
             
             expectation.fulfill()
         }
-        
         
         wait(for: [expectation], timeout: 1.0)
     }
