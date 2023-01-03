@@ -2,70 +2,7 @@ import FeedCache
 import XCTest
 
 class CodableFeedStore {
-    
-    private struct Cache: Codable {
-        let moviesPage: CodableMoviesPage
-        let timestamp: Date
         
-        var cacheMoviesPage: CacheMoviesPage {
-            return moviesPage.toCacheMoviesPage()
-        }
-    }
-    
-    private struct CodableMoviesPage: Codable {
-        
-        // MARK: - Private Properties
-        
-        private let page: Int
-        private let results: [CodableMovie]
-        private let totalResults: Int
-        private let totalPages: Int
-        
-        // MARK: - Init
-                
-        init(_ moviesPage: CacheMoviesPage) {
-            self.page = moviesPage.page
-            self.results = moviesPage.results.map { CodableMovie($0) }
-            self.totalResults = moviesPage.totalResults
-            self.totalPages = moviesPage.totalPages
-        }
-        
-        // MARK: - API
-        
-        func toCacheMoviesPage() -> CacheMoviesPage {
-            CacheMoviesPage(
-                page: self.page,
-                results: self.results.map { $0.toCacheMovie() },
-                totalResults: self.totalResults,
-                totalPages: self.totalPages
-            )
-        }
-    }
-    
-    private struct CodableMovie: Codable {
-        
-        // MARK: - Private Properties
-        
-        private let id: Int
-        private let title: String
-        
-        // MARK: - Init
-        
-        init(_ movie: CacheMovie) {
-            self.id = movie.id
-            self.title = movie.title
-        }
-        
-        // MARK: - API
-        
-        func toCacheMovie() -> CacheMovie {
-            CacheMovie(
-                id: self.id,
-                title: self.title
-            )
-        }
-    }
-    
     // MARK: - Private Properties
     
     private let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
@@ -187,5 +124,70 @@ class CodableFeedStoreTests: XCTestCase {
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
+    }
+}
+
+extension CodableFeedStore {
+    private struct Cache: Codable {
+        let moviesPage: CodableMoviesPage
+        let timestamp: Date
+        
+        var cacheMoviesPage: CacheMoviesPage {
+            return moviesPage.toCacheMoviesPage()
+        }
+    }
+    
+    private struct CodableMoviesPage: Codable {
+        
+        // MARK: - Private Properties
+        
+        private let page: Int
+        private let results: [CodableMovie]
+        private let totalResults: Int
+        private let totalPages: Int
+        
+        // MARK: - Init
+                
+        init(_ moviesPage: CacheMoviesPage) {
+            self.page = moviesPage.page
+            self.results = moviesPage.results.map { CodableMovie($0) }
+            self.totalResults = moviesPage.totalResults
+            self.totalPages = moviesPage.totalPages
+        }
+        
+        // MARK: - API
+        
+        func toCacheMoviesPage() -> CacheMoviesPage {
+            CacheMoviesPage(
+                page: self.page,
+                results: self.results.map { $0.toCacheMovie() },
+                totalResults: self.totalResults,
+                totalPages: self.totalPages
+            )
+        }
+    }
+    
+    private struct CodableMovie: Codable {
+        
+        // MARK: - Private Properties
+        
+        private let id: Int
+        private let title: String
+        
+        // MARK: - Init
+        
+        init(_ movie: CacheMovie) {
+            self.id = movie.id
+            self.title = movie.title
+        }
+        
+        // MARK: - API
+        
+        func toCacheMovie() -> CacheMovie {
+            CacheMovie(
+                id: self.id,
+                title: self.title
+            )
+        }
     }
 }
