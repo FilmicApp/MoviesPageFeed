@@ -12,24 +12,17 @@ class CodableFeedStore {
         }
     }
     
-    struct CodableMoviesPage: Codable {
+    private struct CodableMoviesPage: Codable {
         
-        // MARK: - Public Properties
+        // MARK: - Private Properties
         
-        let page: Int
-        let results: [CodableMovie]
-        let totalResults: Int
-        let totalPages: Int
+        private let page: Int
+        private let results: [CodableMovie]
+        private let totalResults: Int
+        private let totalPages: Int
         
         // MARK: - Init
-        
-        init(page: Int, results: [CodableMovie], totalResults: Int, totalPages: Int) {
-            self.page = page
-            self.results = results
-            self.totalResults = totalResults
-            self.totalPages = totalPages
-        }
-        
+                
         init(_ moviesPage: CacheMoviesPage) {
             self.page = moviesPage.page
             self.results = moviesPage.results.map { CodableMovie($0) }
@@ -49,19 +42,14 @@ class CodableFeedStore {
         }
     }
     
-    struct CodableMovie: Codable {
+    private struct CodableMovie: Codable {
         
-        // MARK: - Public Properties
+        // MARK: - Private Properties
         
-        let id: Int
-        let title: String
+        private let id: Int
+        private let title: String
         
         // MARK: - Init
-        
-        init(id: Int, title: String) {
-            self.id = id
-            self.title = title
-        }
         
         init(_ movie: CacheMovie) {
             self.id = movie.id
