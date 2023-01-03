@@ -49,6 +49,19 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         })
     }
     
+    func test_load_whenCacheIsSevenDaysOld_shouldDeliverEmptyMoviesPage() {
+        let cachedMoviesPage = uniqueMoviesPages().cache
+        let emptyMoviesPage = emptyMoviesPages().model
+        let fixedCurrentDate = Date()
+        let sevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7)
+
+        let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
+        
+        expect(sut, toCompleteWith: .success(emptyMoviesPage), when: {
+            store.completeRetrieval(with: cachedMoviesPage, timestamp: sevenDaysOldTimeStamp)
+        })
+    }
+    
     // MARK: - Factory methods
     
     private func makeSut(
@@ -63,6 +76,18 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         trackForMemoryLeaks(sut)
         
         return (sut, store)
+    }
+    
+    private func emptyMoviesPages() -> (model: MoviesPage, cache: CacheMoviesPage) {
+        let model = MoviesPage(
+            page: 1,
+            results: [],
+            totalResults: 1,
+            totalPages: 1
+        )
+        let cache = CacheMoviesPage.init(from: model)
+        
+        return (model, cache)
     }
     
     private func uniqueMoviesPages() -> (model: MoviesPage, cache: CacheMoviesPage) {
@@ -145,7 +170,7 @@ private extension CacheMovie {
 
 private extension Date {
     func adding(days: Int) -> Date {
-        return Calendar(identifier: .gregorian).date(byAdding: .day, value: 7, to: self)!
+        return Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
     }
     
     func adding(seconds: TimeInterval) -> Date {

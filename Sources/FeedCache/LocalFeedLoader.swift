@@ -33,15 +33,15 @@ public final class LocalFeedLoader {
     }
     
     public func load(completion: @escaping (LoadResult) -> Void) {
-        store.retrieve { result in
+        store.retrieve { [unowned self] result in
             switch result {
             case let .failure(error):
                 completion(.failure(error))
                 
-            case let .found(moviesPage, _):
+            case let .found(moviesPage, timestamp) where validate(timestamp):
                 completion(.success(moviesPage.toDomain()))
                 
-            case .empty:
+            case .found, .empty:
                 let moviesPage = MoviesPage(page: 1, results: [], totalResults: 1, totalPages: 1)
                 completion(.success(moviesPage))
             }
@@ -56,6 +56,15 @@ public final class LocalFeedLoader {
             
             completion(error)
         }
+    }
+    
+    private func validate(_ timestamp: Date) -> Bool {
+        let calendar = Calendar(identifier: .gregorian)
+        guard let maxCacheAge = calendar.date(byAdding: .day, value: 7, to: timestamp) else {
+            return false
+        }
+        
+        return currentDate() < maxCacheAge
     }
 }
 
