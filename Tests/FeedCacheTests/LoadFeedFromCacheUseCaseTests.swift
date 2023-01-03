@@ -29,7 +29,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         })
     }
     
-    func test_load_whenCacheIsEmpty_shouldDeliverNoMoviesPage() {
+    func test_load_whenCacheIsEmpty_shouldDeliverEmptyMoviesPage() {
         let (sut, store) = makeSut()
         let emptyMoviesPage = MoviesPage(page: 1, results: [], totalResults: 1, totalPages: 1)
         
