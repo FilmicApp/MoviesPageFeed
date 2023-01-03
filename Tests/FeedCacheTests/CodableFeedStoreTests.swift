@@ -2,7 +2,7 @@ import FeedCache
 import XCTest
 
 class CodableFeedStore {
-        
+    
     // MARK: - Private Properties
     
     private let storeURL: URL
@@ -121,6 +121,35 @@ class CodableFeedStoreTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
     
+    func test_retrieve_whenCacheIsNonEmpty_shouldHaveNoSideEffects() {
+        let sut = makeSut()
+        let moviesPage = uniqueMoviesPages().cache
+        let timestamp = Date()
+        let expectation = expectation(description: "Wait for cache retrieval")
+        
+        sut.insert(moviesPage, timestamp: timestamp) { insertionError in
+            XCTAssertNil(insertionError, "Expected feed to be inserted successfully")
+            
+            sut.retrieve { firstRetrievedResult in
+                sut.retrieve { secondRetrievedResult in
+                    switch (firstRetrievedResult, secondRetrievedResult) {
+                    case let (.found(expectedMoviesPage, expectedTimestamp), .found(retrievedMoviesPage, retrievedTimestamp)):
+                        XCTAssertEqual(expectedMoviesPage, retrievedMoviesPage)
+                        XCTAssertEqual(expectedTimestamp, retrievedTimestamp)
+                        
+                    default:
+                        XCTFail("Expected retrieving twice from a non-empty cache to deliver the same found result with moviesPage \(moviesPage) and timestamp \(timestamp), but got \(firstRetrievedResult) and \(secondRetrievedResult) instead")
+                    }
+                    
+                    expectation.fulfill()
+                }
+            }
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
+    
     // MARK: - Factory methods
     
     func makeSut(file: StaticString = #filePath, line: UInt = #line) -> CodableFeedStore {
@@ -170,7 +199,7 @@ extension CodableFeedStore {
         private let totalPages: Int
         
         // MARK: - Init
-                
+        
         init(_ moviesPage: CacheMoviesPage) {
             self.page = moviesPage.page
             self.results = moviesPage.results.map { CodableMovie($0) }
