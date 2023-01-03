@@ -44,7 +44,7 @@ public final class RemoteMoviesPageLoader: MoviesPageLoader {
     private static func map(_ data: Data, from response: HTTPURLResponse) -> Result {
         do {
             let remoteMoviesPage = try MoviesPageMapper.map(data, from: response)
-            return .success(remoteMoviesPage.toModels())
+            return .success(remoteMoviesPage.toDomain())
         } catch {
             return .failure(error)
         }
@@ -56,10 +56,10 @@ public final class RemoteMoviesPageLoader: MoviesPageLoader {
 }
 
 private extension RemoteMoviesPage {
-    func toModels() -> MoviesPage {
+    func toDomain() -> MoviesPage {
         MoviesPage(
             page: self.page,
-            results: self.results.map { $0.toModels() },
+            results: self.results.map { $0.toDomain() },
             totalResults: self.totalResults,
             totalPages: self.totalPages
         )
@@ -67,7 +67,7 @@ private extension RemoteMoviesPage {
 }
 
 private extension RemoteMovie {
-    func toModels() -> Movie {
+    func toDomain() -> Movie {
         Movie(
             id: self.id,
             title: self.title
