@@ -127,7 +127,7 @@ class CodableFeedStoreTests: XCTestCase {
         expect(sut, toRetrieve: .found(moviesPage: latestCache.moviesPage, timestamp: latestCache.timestamp))
     }
     
-    func test_() {
+    func test_insert_whenReceivesInsertionError_shouldDeliverError() {
         let storeURL = URL(string: "invalid://store-url")!
         let sut = makeSut(storeURL: storeURL)
         let cache = makeUniqueCacheableTuple()
