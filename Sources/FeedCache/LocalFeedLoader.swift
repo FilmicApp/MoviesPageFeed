@@ -45,7 +45,12 @@ public final class LocalFeedLoader {
             case let .found(moviesPage, timestamp) where validate(timestamp):
                 completion(.success(moviesPage.toDomain()))
                 
-            case .found, .empty:
+            case .found:
+                store.deleteCachedFeed() { _ in }
+                let moviesPage = MoviesPage(page: 1, results: [], totalResults: 1, totalPages: 1)
+                completion(.success(moviesPage))
+                
+            case .empty:
                 let moviesPage = MoviesPage(page: 1, results: [], totalResults: 1, totalPages: 1)
                 completion(.success(moviesPage))
             }
