@@ -152,11 +152,8 @@ class CodableFeedStoreTests: XCTestCase {
     func test_delete_whenCacheIsEmpty_shouldHaveNoSideEffects() {
         let sut = makeSut()
         
-        var deletionError: Error?
-        sut.deleteCachedFeed { receivedError in
-            deletionError = receivedError
-        }
-        
+        let deletionError = deleteCache(from: sut)
+
         XCTAssertNil(deletionError, "Expected empty cache deletion to succeed")
         expect(sut, toRetrieve: .empty)
     }
@@ -165,11 +162,8 @@ class CodableFeedStoreTests: XCTestCase {
         let sut = makeSut()
         insert(makeUniqueCacheableTuple(), to: sut)
         
-        var deletionError: Error?
-        sut.deleteCachedFeed { receivedError in
-            deletionError = receivedError
-        }
-        
+        let deletionError = deleteCache(from: sut)
+
         XCTAssertNil(deletionError, "Expected non-empty cache deletion to succeed")
         expect(sut, toRetrieve: .empty)
     }
@@ -178,10 +172,7 @@ class CodableFeedStoreTests: XCTestCase {
         let noDeletePermissionURL = cachesDirectory()
         let sut = makeSut(storeURL: noDeletePermissionURL)
         
-        var deletionError: Error?
-        sut.deleteCachedFeed { receivedError in
-            deletionError = receivedError
-        }
+        let deletionError = deleteCache(from: sut)
         
         XCTAssertNotNil(deletionError, "Expected cache deletion to fail")
     }
@@ -220,6 +211,17 @@ class CodableFeedStoreTests: XCTestCase {
     
     private func deleteStoreArtefact() {
         try? FileManager.default.removeItem(at: testSpecificStoreURL())
+    }
+    
+    private func deleteCache(from sut: CodableFeedStore) -> Error? {
+        let expectation = expectation(description: "Wait for cache deletion")
+        var deletionError: Error?
+        sut.deleteCachedFeed { receivedError in
+            deletionError = receivedError
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+        return deletionError
     }
     
     @discardableResult
