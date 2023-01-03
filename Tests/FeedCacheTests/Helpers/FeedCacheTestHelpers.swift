@@ -66,8 +66,11 @@ extension CacheMovie {
 }
 
 extension Date {
+    
+    
     func minusFeedCacheMaxAge() -> Date {
-        return adding(days: -7)
+        let feedCacheMaxAgeInDays = 7
+        return adding(days: -feedCacheMaxAgeInDays)
     }
     
     private func adding(days: Int) -> Date {
