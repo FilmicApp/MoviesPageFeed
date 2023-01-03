@@ -113,36 +113,6 @@ class CacheFeedUseCaseTests: XCTestCase {
         return (sut, store)
     }
     
-    private func uniqueMoviesPages() -> (model: MoviesPage, cache: CacheMoviesPage) {
-        let model = uniqueMoviesPage()
-        let cache = CacheMoviesPage.init(from: model)
-        
-        return (model, cache)
-    }
-    
-    private func uniqueMoviesPage() -> MoviesPage {
-        let totalPages: Int = .random(in: 1...5)
-        let currentPage: Int = .random(in: 1...totalPages)
-        
-        return MoviesPage(
-            page: currentPage,
-            results: [uniqueMovie()],
-            totalResults: .random(in: 6...10),
-            totalPages: totalPages
-        )
-    }
-    
-    private func uniqueMovie() -> Movie {
-        Movie(
-            id: .random(in: 100000...200000),
-            title: "AnyTitle"
-        )
-    }
-    
-    private func anyNSError() -> NSError {
-        NSError(domain: "any error", code: 0)
-    }
-    
     // MARK: - Helpers
     
     private func expect(
@@ -164,25 +134,5 @@ class CacheFeedUseCaseTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
         
         XCTAssertEqual(receivedError as NSError?, expectedError)
-    }
-}
-
-private extension CacheMoviesPage {
-    init(from moviesPage: MoviesPage) {
-        self.init(
-            page: moviesPage.page,
-            results: moviesPage.results.map { CacheMovie.init(from: $0) },
-            totalResults: moviesPage.totalResults,
-            totalPages: moviesPage.totalPages
-        )
-    }
-}
-
-private extension CacheMovie {
-    init(from movie: Movie) {
-        self.init(
-            id: movie.id,
-            title: movie.title
-        )
     }
 }

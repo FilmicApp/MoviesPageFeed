@@ -155,49 +155,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
         return (sut, store)
     }
-    
-    private func emptyMoviesPages() -> (model: MoviesPage, cache: CacheMoviesPage) {
-        let model = MoviesPage(
-            page: 1,
-            results: [],
-            totalResults: 1,
-            totalPages: 1
-        )
-        let cache = CacheMoviesPage.init(from: model)
         
-        return (model, cache)
-    }
-    
-    private func uniqueMoviesPages() -> (model: MoviesPage, cache: CacheMoviesPage) {
-        let model = uniqueMoviesPage()
-        let cache = CacheMoviesPage.init(from: model)
-        
-        return (model, cache)
-    }
-    
-    private func uniqueMoviesPage() -> MoviesPage {
-        let totalPages: Int = .random(in: 1...5)
-        let currentPage: Int = .random(in: 1...totalPages)
-        
-        return MoviesPage(
-            page: currentPage,
-            results: [uniqueMovie()],
-            totalResults: .random(in: 6...10),
-            totalPages: totalPages
-        )
-    }
-    
-    private func uniqueMovie() -> Movie {
-        Movie(
-            id: .random(in: 100000...200000),
-            title: "AnyTitle"
-        )
-    }
-    
-    private func anyNSError() -> NSError {
-        NSError(domain: "any error", code: 0)
-    }
-    
     // MARK: - Helpers
     
     func expect(
@@ -223,35 +181,5 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
         action()
         wait(for: [expectation], timeout: 1.0)
-    }
-}
-
-private extension CacheMoviesPage {
-    init(from moviesPage: MoviesPage) {
-        self.init(
-            page: moviesPage.page,
-            results: moviesPage.results.map { CacheMovie.init(from: $0) },
-            totalResults: moviesPage.totalResults,
-            totalPages: moviesPage.totalPages
-        )
-    }
-}
-
-private extension CacheMovie {
-    init(from movie: Movie) {
-        self.init(
-            id: movie.id,
-            title: movie.title
-        )
-    }
-}
-
-private extension Date {
-    func adding(days: Int) -> Date {
-        return Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
-    }
-    
-    func adding(seconds: TimeInterval) -> Date {
-        return self + seconds
     }
 }
