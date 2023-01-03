@@ -31,6 +31,10 @@ public final class LocalFeedLoader {
         }
     }
     
+    public func load() {
+        store.retrieve()
+    }
+    
     // MARK: - Helpers
     
     private func cache(_ moviesPage: MoviesPage, with completion: @escaping (SaveResult) -> Void) {

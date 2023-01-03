@@ -6,6 +6,7 @@ class FeedStoreSpy: FeedStore {
     enum ReceivedMessage: Equatable {
         case deleteCachedFeed
         case insert(CacheMoviesPage, Date)
+        case retrieve
     }
     
     // MARK: - Private Properties
@@ -26,6 +27,10 @@ class FeedStoreSpy: FeedStore {
     func insert(_ moviesPage: CacheMoviesPage, timestamp: Date, completion: @escaping InsertionCompletion) {
         insertionCompletions.append(completion)
         receivedMessages.append(.insert(moviesPage, timestamp))
+    }
+    
+    func retrieve() {
+        receivedMessages.append(.retrieve)
     }
     
     // MARK: - Spy Methods

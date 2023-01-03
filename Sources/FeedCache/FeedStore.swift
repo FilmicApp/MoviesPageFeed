@@ -6,6 +6,7 @@ public protocol FeedStore {
 
     func deleteCachedFeed(completion: @escaping DeletionCompletion)
     func insert(_ moviesPage: CacheMoviesPage, timestamp: Date, completion: @escaping InsertionCompletion)
+    func retrieve()
 }
 
 public struct CacheMoviesPage: Equatable {

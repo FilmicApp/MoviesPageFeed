@@ -11,6 +11,14 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.receivedMessages, [])
     }
     
+    func test_load_whenCalled_shouldRequestCacheRetrieval() {
+        let (sut, store) = makeSut()
+        
+        sut.load()
+        
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
+    }
+    
     // MARK: - Factory methods
     
     private func makeSut(
