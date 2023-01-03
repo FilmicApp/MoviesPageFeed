@@ -115,7 +115,7 @@ class CodableFeedStoreTests: XCTestCase {
     // MARK: - Tests
     
     func test_retrieve_whenCacheIsEmpty_shouldDeliverEmpty() {
-        let sut = CodableFeedStore()
+        let sut = makeSut()
         let expectation = expectation(description: "Wait for cache retrieval")
         
         sut.retrieve { result in
@@ -134,7 +134,7 @@ class CodableFeedStoreTests: XCTestCase {
     }
     
     func test_retrieve_whenCacheIsEmpty_shouldHaveNoSideEffects() {
-        let sut = CodableFeedStore()
+        let sut = makeSut()
         let expectation = expectation(description: "Wait for cache retrieval")
         
         sut.retrieve { firstResult in
@@ -155,7 +155,7 @@ class CodableFeedStoreTests: XCTestCase {
     }
     
     func test_retrieve_whenCallingAfterInsertingToCache_shouldDeliverInsertedValues() {
-        let sut = CodableFeedStore()
+        let sut = makeSut()
         let moviesPage = uniqueMoviesPages().cache
         let timestamp = Date()
         let expectation = expectation(description: "Wait for cache retrieval")
@@ -177,5 +177,11 @@ class CodableFeedStoreTests: XCTestCase {
         }
         
         wait(for: [expectation], timeout: 1.0)
+    }
+    
+    // MARK: - Helpers
+    
+    func makeSut() -> CodableFeedStore {
+        return CodableFeedStore()
     }
 }
