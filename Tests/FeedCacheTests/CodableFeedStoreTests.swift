@@ -110,9 +110,23 @@ class CodableFeedStoreTests: XCTestCase {
         expect(sut, toRetrieveTwice: .failure(anyNSError()))
     }
     
+    func test_insert_whenCacheIsNonEmpty_shouldOverridePreviouslyInsertedCachedValues() {
+        let sut = makeSut()
+        let firstCache = makeUniqueCacheableTuple()
+        
+        let firstInsertionError = insert(firstCache, to: sut)
+        XCTAssertNil(firstInsertionError, "Expected to insert cache successfully")
+        
+        let latestCache = makeUniqueCacheableTuple()
+        let latestInsertionError = insert(latestCache, to: sut)
+        
+        XCTAssertNil(latestInsertionError, "Expected to override cache successfully")
+        expect(sut, toRetrieve: .found(moviesPage: latestCache.moviesPage, timestamp: latestCache.timestamp))
+    }
+    
     // MARK: - Factory methods
     
-    func makeSut(storeURL: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> CodableFeedStore {
+    private func makeSut(storeURL: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> CodableFeedStore {
         let sut = CodableFeedStore(storeURL: storeURL ?? testSpecificStoreURL())
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut
@@ -120,6 +134,12 @@ class CodableFeedStoreTests: XCTestCase {
     
     private func testSpecificStoreURL() -> URL {
         return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("\(type(of: self)).store")
+    }
+    
+    private func makeUniqueCacheableTuple() -> (moviesPage: CacheMoviesPage, timestamp: Date) {
+        let moviesPage = uniqueMoviesPages().cache
+        let timestamp = Date()
+        return (moviesPage, timestamp)
     }
     
     // MARK: - Helpers
@@ -136,13 +156,16 @@ class CodableFeedStoreTests: XCTestCase {
         try? FileManager.default.removeItem(at: testSpecificStoreURL())
     }
     
-    private func insert(_ cache: (moviesPage: CacheMoviesPage, timestamp: Date), to sut: CodableFeedStore) {
+    @discardableResult
+    private func insert(_ cache: (moviesPage: CacheMoviesPage, timestamp: Date), to sut: CodableFeedStore) -> Error? {
         let expectation = expectation(description: "Wait for cache insertion")
-        sut.insert(cache.moviesPage, timestamp: cache.timestamp) { insertionError in
-            XCTAssertNil(insertionError, "Expected feed to be inserted successfully")
+        var insertionError: Error?
+        sut.insert(cache.moviesPage, timestamp: cache.timestamp) { receivedInsertionError in
+            insertionError = receivedInsertionError
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1.0)
+        return insertionError
     }
     
     private func expect(
@@ -170,8 +193,8 @@ class CodableFeedStoreTests: XCTestCase {
                 break
                 
             case let (.found(expectedMoviesPage, expectedTimestamp), .found(retrievedMoviesPage, retrievedTimestamp)):
-                XCTAssertEqual(expectedMoviesPage, retrievedMoviesPage)
-                XCTAssertEqual(expectedTimestamp, retrievedTimestamp)
+                XCTAssertEqual(expectedMoviesPage, retrievedMoviesPage, file: file, line: line)
+                XCTAssertEqual(expectedTimestamp, retrievedTimestamp, file: file, line: line)
                 
             default:
                 XCTFail("Expected to retrieve \(expectedResult), got \(retrievedResult) instead", file: file, line: line)
