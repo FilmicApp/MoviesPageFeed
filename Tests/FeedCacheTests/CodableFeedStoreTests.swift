@@ -9,7 +9,7 @@ class CodableFeedStore {
 
 class CodableFeedStoreTests: XCTestCase {
     
-    func test_retrieve_whenCacheIsEmpty_shouldDeliverEmptyMoviesPage() {
+    func test_retrieve_whenCacheIsEmpty_shouldDeliverEmpty() {
         let sut = CodableFeedStore()
         let expectation = expectation(description: "Wait for cache retrieval")
         
