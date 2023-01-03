@@ -11,7 +11,7 @@ public final class LocalFeedLoader {
     private let store: FeedStore
     private let currentDate: () -> Date
     private let calendar = Calendar(identifier: .gregorian)
-
+    
     private var maxCacheAgeInDays = 7
     
     // MARK: - Init
@@ -20,6 +20,20 @@ public final class LocalFeedLoader {
         self.store = store
         self.currentDate = currentDate
     }
+    
+    // MARK: - Helpers
+    
+    private func validate(_ timestamp: Date) -> Bool {
+        guard let maxCacheAge = calendar.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) else {
+            return false
+        }
+        
+        return currentDate() < maxCacheAge
+    }
+
+}
+
+extension LocalFeedLoader {
     
     // MARK: - API
     
@@ -35,6 +49,22 @@ public final class LocalFeedLoader {
         }
     }
     
+    // MARK: - Helpers
+    
+    private func cache(_ moviesPage: MoviesPage, with completion: @escaping (SaveResult) -> Void) {
+        store.insert(moviesPage.toCacheMoviesPage(), timestamp: currentDate()) { [weak self] error in
+            guard self != nil else { return }
+            
+            completion(error)
+        }
+    }
+
+}
+
+extension LocalFeedLoader {
+    
+    // MARK: - API
+    
     public func load(completion: @escaping (LoadResult) -> Void) {
         store.retrieve { [weak self] result in
             guard let self else { return }
@@ -48,10 +78,15 @@ public final class LocalFeedLoader {
                 
             case .found, .empty:
                 let moviesPage = MoviesPage(page: 1, results: [], totalResults: 1, totalPages: 1)
-                completion(.success(moviesPage))       
+                completion(.success(moviesPage))
             }
         }
     }
+}
+
+extension LocalFeedLoader {
+    
+    // MARK: - API
     
     public func validateCache() {
         store.retrieve { [weak self] result in
@@ -68,24 +103,6 @@ public final class LocalFeedLoader {
                 break
             }
         }
-    }
-    
-    // MARK: - Helpers
-    
-    private func cache(_ moviesPage: MoviesPage, with completion: @escaping (SaveResult) -> Void) {
-        store.insert(moviesPage.toCacheMoviesPage(), timestamp: currentDate()) { [weak self] error in
-            guard self != nil else { return }
-            
-            completion(error)
-        }
-    }
-    
-    private func validate(_ timestamp: Date) -> Bool {
-        guard let maxCacheAge = calendar.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) else {
-            return false
-        }
-        
-        return currentDate() < maxCacheAge
     }
 }
 
