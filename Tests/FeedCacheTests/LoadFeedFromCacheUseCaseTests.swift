@@ -74,7 +74,15 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
             store.completeRetrieval(with: cachedMoviesPage, timestamp: moreThanSevenDaysOldTimeStamp)
         })
     }
-
+    
+    func test_load_whenReceivesRetrievalError_shouldDeleteCache() {
+        let (sut, store) = makeSut()
+        
+        sut.load { _ in }
+        store.completeRetrieval(with: anyNSError())
+        
+        XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
+    }
     
     // MARK: - Factory methods
     
