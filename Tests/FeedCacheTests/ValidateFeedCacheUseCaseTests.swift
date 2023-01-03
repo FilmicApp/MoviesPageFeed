@@ -36,7 +36,7 @@ class ValidateFeedCacheUseCaseTests: XCTestCase {
         let lessThanSevenDaysOldTimeStamp = fixedCurrentDate.adding(days: -7).adding(seconds: 1)
         let (sut, store) = makeSut(currentDate: { fixedCurrentDate })
         
-        sut.load { _ in }
+        sut.validateCache()
         store.completeRetrieval(with: moviesPage.cache, timestamp: lessThanSevenDaysOldTimeStamp)
         
         XCTAssertEqual(store.receivedMessages, [.retrieve])
