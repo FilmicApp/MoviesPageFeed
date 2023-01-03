@@ -1,4 +1,5 @@
 import FeedCache
+import FeedFeature
 import XCTest
 
 class LoadFeedFromCacheUseCaseTests: XCTestCase {
@@ -39,6 +40,27 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
         
         XCTAssertEqual(receivedError as NSError?, retrievalError)
+    }
+    
+    func test_load_whenCacheIsEmpty_shouldDeliverNoMoviesPage() {
+        let (sut, store) = makeSut()
+        let expectation = expectation(description: "Wait for load() completion")
+
+        var receivedMoviesPage: MoviesPage?
+        sut.load() { result in
+            switch result {
+            case let .success(moviesPage):
+                receivedMoviesPage = moviesPage
+            default:
+                XCTFail("Expected success, got \(result) instead")
+            }
+            expectation.fulfill()
+        }
+
+        store.completeRetrievalWithEmptyCache()
+        wait(for: [expectation], timeout: 1.0)
+
+        XCTAssertEqual(receivedMoviesPage?.results, [])
     }
     
     // MARK: - Factory methods

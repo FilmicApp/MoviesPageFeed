@@ -36,6 +36,9 @@ public final class LocalFeedLoader {
         store.retrieve { error in
             if let error {
                 completion(.failure(error))
+            } else {
+                let moviesPage = MoviesPage(page: 1, results: [], totalResults: 1, totalPages: 1)
+                completion(.success(moviesPage))
             }
         }
     }
