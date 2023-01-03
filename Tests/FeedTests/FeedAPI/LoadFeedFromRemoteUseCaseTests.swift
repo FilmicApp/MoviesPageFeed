@@ -190,8 +190,8 @@ class LoadFeedFromRemoteUseCaseTests: XCTestCase {
         
         sut.load { receivedResult in
             switch (receivedResult, expectedResult) {
-            case let (.success(receivedItems), .success(expectedItems)):
-                XCTAssertEqual(receivedItems, expectedItems, file: file, line: line)
+            case let (.success(receivedMoviesPage), .success(expectedMoviesPage)):
+                XCTAssertEqual(receivedMoviesPage, expectedMoviesPage, file: file, line: line)
                 
             case let (.failure(receivedError as RemoteMoviesPageLoader.Error), .failure(expectedError as RemoteMoviesPageLoader.Error)):
                 XCTAssertEqual(receivedError, expectedError, file: file, line: line)
