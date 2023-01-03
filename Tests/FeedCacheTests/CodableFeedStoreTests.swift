@@ -17,13 +17,16 @@ class CodableFeedStore {
     // MARK: - API
     
     func insert(_ moviesPage: CacheMoviesPage, timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
-        let encoder = JSONEncoder()
-        let codableMoviesPage = CodableMoviesPage(moviesPage)
-        let cache = Cache(moviesPage: codableMoviesPage, timestamp: timestamp)
-        let encodedValues = try! encoder.encode(cache)
-        try! encodedValues.write(to: storeURL)
-        
-        completion(nil)
+        do {
+            let encoder = JSONEncoder()
+            let codableMoviesPage = CodableMoviesPage(moviesPage)
+            let cache = Cache(moviesPage: codableMoviesPage, timestamp: timestamp)
+            let encodedValues = try encoder.encode(cache)
+            try encodedValues.write(to: storeURL)
+            completion(nil)
+        } catch {
+            completion(error)
+        }
     }
     
     func retrieve(completion: @escaping FeedStore.RetrievalCompletion) {
@@ -122,6 +125,16 @@ class CodableFeedStoreTests: XCTestCase {
         
         XCTAssertNil(latestInsertionError, "Expected to override cache successfully")
         expect(sut, toRetrieve: .found(moviesPage: latestCache.moviesPage, timestamp: latestCache.timestamp))
+    }
+    
+    func test_() {
+        let storeURL = URL(string: "invalid://store-url")!
+        let sut = makeSut(storeURL: storeURL)
+        let cache = makeUniqueCacheableTuple()
+
+        let insertionError = insert(cache, to: sut)
+        
+        XCTAssertNotNil(insertionError, "Expected cache insertion to fail with error")
     }
     
     // MARK: - Factory methods
