@@ -16,6 +16,10 @@ class CodableFeedStore {
     
     // MARK: - API
     
+    func deleteCachedFeed(completion: @escaping FeedStore.DeletionCompletion) {
+        
+    }
+    
     func insert(_ moviesPage: CacheMoviesPage, timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
         do {
             let encoder = JSONEncoder()
@@ -135,6 +139,18 @@ class CodableFeedStoreTests: XCTestCase {
         let insertionError = insert(cache, to: sut)
         
         XCTAssertNotNil(insertionError, "Expected cache insertion to fail with error")
+    }
+    
+    func test_delete_hasNoSideEffectsOnEmptyCache() {
+        let sut = makeSut()
+        
+        var deletionError: Error?
+        sut.deleteCachedFeed { receivedError in
+            deletionError = receivedError
+        }
+        
+        XCTAssertNil(deletionError, "Expected empty cache deletion to succeed")
+        expect(sut, toRetrieve: .empty)
     }
     
     // MARK: - Factory methods
