@@ -3,9 +3,6 @@ import Foundation
 
 public final class LocalFeedLoader {
     
-    public typealias SaveResult = Error?
-    public typealias LoadResult = LoadMoviesPageResult
-    
     // MARK: - Private Properties
     
     private let store: FeedStore
@@ -35,6 +32,8 @@ public final class LocalFeedLoader {
 
 extension LocalFeedLoader {
     
+    public typealias SaveResult = Error?
+
     // MARK: - API
     
     public func save(_ moviesPage: MoviesPage, completion: @escaping (SaveResult) -> Void) {
@@ -63,6 +62,8 @@ extension LocalFeedLoader {
 
 extension LocalFeedLoader: MoviesPageLoader {
     
+    public typealias LoadResult = LoadMoviesPageResult
+
     // MARK: - API
     
     public func load(completion: @escaping (LoadResult) -> Void) {
