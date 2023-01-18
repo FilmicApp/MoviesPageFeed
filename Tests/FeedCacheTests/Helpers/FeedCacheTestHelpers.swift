@@ -2,6 +2,12 @@ import FeedFeature
 import FeedCache
 import Foundation
 
+func makeUniqueCacheableTuple() -> (moviesPage: CacheMoviesPage, timestamp: Date) {
+    let moviesPage = uniqueMoviesPages().cache
+    let timestamp = Date()
+    return (moviesPage, timestamp)
+}
+
 func emptyMoviesPages() -> (model: MoviesPage, cache: CacheMoviesPage) {
     let model = MoviesPage(
         page: 1,

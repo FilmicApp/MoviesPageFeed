@@ -86,21 +86,15 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
     func test_insert_whenReceivesInsertionError_shouldDeliverError() {
         let invalidStoreURL = URL(string: "invalid://store-url")!
         let sut = makeSut(storeURL: invalidStoreURL)
-        let cache = makeUniqueCacheableTuple()
-
-        let insertionError = insert(cache, to: sut)
         
-        XCTAssertNotNil(insertionError, "Expected cache insertion to fail with error")
+        assertThatInsertDeliversErrorOnInsertionError(on: sut)
     }
     
     func test_insert_whenReceivesInsertionError_shouldHaveNoSideEffects() {
         let invalidStoreURL = URL(string: "invalid://store-url")!
         let sut = makeSut(storeURL: invalidStoreURL)
-        let cache = makeUniqueCacheableTuple()
-
-        insert(cache, to: sut)
         
-        expect(sut, toRetrieve: .empty)
+        assertThatInsertHasNoSideEffectsOnInsertionError(on: sut)
     }
     
     func test_delete_whenCacheIsEmpty_shouldHaveNoSideEffects() {
@@ -179,13 +173,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
     private func cachesDirectory() -> URL {
         return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
     }
-    
-    private func makeUniqueCacheableTuple() -> (moviesPage: CacheMoviesPage, timestamp: Date) {
-        let moviesPage = uniqueMoviesPages().cache
-        let timestamp = Date()
-        return (moviesPage, timestamp)
-    }
-    
+        
     // MARK: - Helpers
     
     private func setUpEmptyStoreState() {
