@@ -60,10 +60,6 @@ extension CodableFeedStore {
     private struct Cache: Codable {
         let moviesPage: CodableMoviesPage
         let timestamp: Date
-        
-        var cacheMoviesPage: CacheMoviesPage {
-            return moviesPage.toCacheMoviesPage()
-        }
     }
     
     private struct CodableMoviesPage: Codable {
