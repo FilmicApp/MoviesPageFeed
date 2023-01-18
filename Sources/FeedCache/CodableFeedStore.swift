@@ -4,6 +4,7 @@ public class CodableFeedStore: FeedStore {
     
     // MARK: - Private Properties
     
+    private let queue = DispatchQueue(label: "\(CodableFeedStore.self)Queue", qos: .userInitiated)
     private let storeURL: URL
     
     // MARK: - Init
@@ -15,43 +16,49 @@ public class CodableFeedStore: FeedStore {
     // MARK: - API
     
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-        guard FileManager.default.fileExists(atPath: storeURL.path) else {
-            return completion(nil)
-        }
-        
-        do {
-            try FileManager.default.removeItem(at: storeURL)
-            completion(nil)
-        } catch {
-            completion(error)
+        queue.async { [storeURL] in
+            guard FileManager.default.fileExists(atPath: storeURL.path) else {
+                return completion(nil)
+            }
+            
+            do {
+                try FileManager.default.removeItem(at: storeURL)
+                completion(nil)
+            } catch {
+                completion(error)
+            }
         }
     }
     
     public func insert(_ moviesPage: CacheMoviesPage, timestamp: Date, completion: @escaping InsertionCompletion) {
-        do {
-            let encoder = JSONEncoder()
-            let codableMoviesPage = CodableMoviesPage(moviesPage)
-            let cache = Cache(moviesPage: codableMoviesPage, timestamp: timestamp)
-            let encodedValues = try encoder.encode(cache)
-            try encodedValues.write(to: storeURL)
-            completion(nil)
-        } catch {
-            completion(error)
+        queue.async { [storeURL] in
+            do {
+                let encoder = JSONEncoder()
+                let codableMoviesPage = CodableMoviesPage(moviesPage)
+                let cache = Cache(moviesPage: codableMoviesPage, timestamp: timestamp)
+                let encodedValues = try encoder.encode(cache)
+                try encodedValues.write(to: storeURL)
+                completion(nil)
+            } catch {
+                completion(error)
+            }
         }
     }
     
     public func retrieve(completion: @escaping RetrievalCompletion) {
-        guard let data = try? Data(contentsOf: storeURL) else {
-            return completion(.empty)
-        }
-        
-        do {
-            let decoder = JSONDecoder()
-            let codableCache = try decoder.decode(Cache.self, from: data)
-            let cacheMoviesPage = codableCache.moviesPage.toCacheMoviesPage()
-            completion(.found(moviesPage: cacheMoviesPage, timestamp: codableCache.timestamp))
-        } catch {
-            completion(.failure(error))
+        queue.async { [storeURL] in
+            guard let data = try? Data(contentsOf: storeURL) else {
+                return completion(.empty)
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                let codableCache = try decoder.decode(Cache.self, from: data)
+                let cacheMoviesPage = codableCache.moviesPage.toCacheMoviesPage()
+                completion(.found(moviesPage: cacheMoviesPage, timestamp: codableCache.timestamp))
+            } catch {
+                completion(.failure(error))
+            }
         }
     }
 }
