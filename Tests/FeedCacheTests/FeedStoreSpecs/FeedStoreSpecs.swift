@@ -4,9 +4,13 @@ protocol FeedStoreSpecs {
     func test_retrieve_whenCacheIsNonEmpty_shouldDeliverFoundValues()
     func test_retrieve_whenCacheIsNonEmpty_shouldHaveNoSideEffects()
     
+    func test_insert_whenCacheIsEmpty_shouldDeliverNoError()
+    func test_insert_whenCacheIsNonEmpty_shouldDeliverNoError()
     func test_insert_whenCacheIsNonEmpty_shouldOverridePreviouslyInsertedCachedValues()
     
+    func test_delete_whenCacheIsEmpty_shouldDeliverNoError()
     func test_delete_whenCacheIsEmpty_shouldHaveNoSideEffects()
+    func test_delete_whenCacheIsNonEmpty_shouldDeliverNoError()
     func test_delete_whenCacheIsNonEmpty_shouldEmptyPreviouslyInsertedCachedValues()
     
     func test_sideEffects_whenRun_shouldRunSerially()
